@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev -p 8081",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "tailwind:init": "tailwindcss init -p"
   },
   "dependencies": {
+    "framer-motion": "^12.23.9",
     "next": "15.4.2",
     "prettier": "^3.6.2",
     "react": "19.1.0",
