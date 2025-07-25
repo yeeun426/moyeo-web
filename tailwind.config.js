@@ -1,13 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx}", // App Router 구조
+    "./pages/**/*.{js,ts,jsx,tsx}", // (혼용 시)
+    "./components/**/*.{js,ts,jsx,tsx}", // 공통 컴포넌트
+    "./src/**/*.{js,ts,jsx,tsx}", // 전체 커버
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        paperlogy: ["PaperlogyRegular", "sans-serif"],
+        paperlogyBold: ["PaperlogyBold", "sans-serif"],
+      },
+    },
   },
   plugins: [],
-}
-
+};
