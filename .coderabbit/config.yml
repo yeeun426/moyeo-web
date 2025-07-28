@@ -1,0 +1,18 @@
+exclude:
+  paths:
+    - build/
+    - node_modules/
+  extensions:
+    - .png
+    - .svg
+    - .jpg
+
+review:
+  tone: professional
+  language: korean
+  typescript:
+    enabled: true
+  max_comments: 15
+
+behavior:
+  comment_mode: inline
