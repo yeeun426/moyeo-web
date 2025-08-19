@@ -3,11 +3,13 @@ import { redirect } from "next/navigation";
 // 동적 렌더링 강제 (정적 생성 비활성화)
 export const dynamic = "force-dynamic";
 
-interface PageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
-}
+type SearchParams = { [key: string]: string | string[] | undefined };
 
-export default async function GoogleCallback({ searchParams }: PageProps) {
+export default async function GoogleCallback(props: {
+  searchParams: SearchParams | Promise<SearchParams>;
+}) {
+  // searchParams가 Promise인지 확인하고 처리
+  const searchParams = await Promise.resolve(props.searchParams);
   const code =
     typeof searchParams?.code === "string" ? searchParams.code : undefined;
 

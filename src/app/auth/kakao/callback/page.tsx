@@ -51,7 +51,8 @@ const KakaoCallbackPage = () => {
         } else {
           router.push("/home");
         }
-      } catch (_err) {
+      } catch (err) {
+        console.error("로그인 처리 중 오류가 발생했습니다.", err);
         setError("로그인 처리 중 오류가 발생했습니다.");
         setLoading(false);
       }
