@@ -3,17 +3,14 @@ import { redirect } from "next/navigation";
 // 동적 렌더링 강제 (정적 생성 비활성화)
 export const dynamic = "force-dynamic";
 
-type SearchParams = { [key: string]: string | string[] | undefined };
-
-// Next.js App Router의 올바른 PageProps 타입 정의
-interface PageProps {
-  params?: { [key: string]: string | string[] };
-  searchParams?: Promise<SearchParams>;
+// 더 구체적인 타입 정의 (Next.js 15+ 호환)
+interface Props {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function GoogleCallback({ searchParams }: PageProps) {
-  // searchParams는 항상 Promise로 처리
-  const resolvedSearchParams = searchParams ? await searchParams : {};
+export default async function GoogleCallback({ searchParams }: Props) {
+  // searchParams를 Promise로 처리
+  const resolvedSearchParams = await searchParams;
 
   const code =
     typeof resolvedSearchParams?.code === "string"
