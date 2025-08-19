@@ -38,7 +38,7 @@ const KakaoCallbackPage = () => {
 
         const data = await res.json();
 
-        if (!data.data?.jwtAccessToken) {
+        if (!data.data?.jwtAccessToken && !data?.data.newUser) {
           setError("로그인에 실패했습니다.");
           setLoading(false);
           return;

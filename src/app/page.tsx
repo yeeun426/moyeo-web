@@ -27,7 +27,6 @@ export default function SplashScreen() {
         fontFamily: "var(--font-paperlogy-regular)",
       }}
     >
-      테스트
       <Image
         src="/images/icon.png"
         alt="Logo"

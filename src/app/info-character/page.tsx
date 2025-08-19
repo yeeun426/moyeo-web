@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
+import { userService } from "service/userApiService";
 
 const CHARACTER_IMAGES = [
   "/images/cat_profile.png",
@@ -26,23 +27,14 @@ export default function CharacterSelectScreen() {
 
   const handleGoToSuccess = async () => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/users`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            provider,
-            oauthId,
-            nickname,
-            character: CHARACTER_NAMES[selectedIndex],
-            bank,
-            accountNumber: account,
-          }),
-        }
-      );
-
-      const data = await res.json();
+      const data = await userService.postUsers({
+        provider,
+        oauthId,
+        nickname,
+        character: CHARACTER_NAMES[selectedIndex],
+        bank,
+        accountNumber: account,
+      });
       console.log("회원 등록 완료:", data);
 
       router.replace(
