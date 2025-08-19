@@ -13,7 +13,7 @@
 
 > 아래 기준에 따라 리뷰해주세요. (작성자 및 리뷰어 모두 참고)
 
-- 컴포넌트 이름, 함수, 변수는 모두 camelCase를 사용합니다.
+- 컴포넌트 이름은 PascalCase, 함수/변수는 camelCase를 사용합니다. (예: MyButton, handleClick)
 - Tailwind CSS를 사용하고, inline style은 지양합니다.
 - 재사용 가능한 UI는 components 디렉토리로 분리합니다.
 - 훅은 항상 컴포넌트 최상단에서 호출합니다 (React Hooks 규칙).

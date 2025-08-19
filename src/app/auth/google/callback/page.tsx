@@ -11,9 +11,11 @@ const GoogleCallbackPage = () => {
     const code = searchParams.get("code");
     const state = searchParams.get("state");
     const savedState = localStorage.getItem("oauth_state");
+    // 불필요시, oauth_state 삭제
 
     if (!code) {
       console.error("Google code 없음");
+      router.push("/auth/error?message=authorization_code_missing");
       return;
     }
 
@@ -53,6 +55,7 @@ const GoogleCallbackPage = () => {
         }
       } catch (err) {
         console.error("구글 로그인 실패:", err);
+        router.push("/auth/error?message=authorization_code_missing");
       }
     };
 

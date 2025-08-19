@@ -26,6 +26,12 @@ export default function CharacterSelectScreen() {
   const account = searchParams.get("account") || "";
 
   const handleGoToSuccess = async () => {
+    if (!provider || !oauthId || !nickname) {
+      alert("잘못된 접근입니다. 소셜 로그인부터 다시 진행해주세요.");
+      router.replace("/login");
+      return;
+    }
+
     try {
       const data = await userService.postUsers({
         provider,
@@ -38,7 +44,7 @@ export default function CharacterSelectScreen() {
       console.log("회원 등록 완료:", data);
 
       router.replace(
-        `/success?nickname=${nickname}&selectedCharacter=${CHARACTER_NAMES[selectedIndex]}`
+        `/success?nickname=${encodeURIComponent(nickname)}&selectedCharacter=${encodeURIComponent(CHARACTER_NAMES[selectedIndex])}`
       );
     } catch (err) {
       console.error("회원 등록 실패:", err);
