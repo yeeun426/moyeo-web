@@ -27,14 +27,52 @@ export default function MakeChallengePage() {
   };
 
   const handleCreateChallenge = async () => {
+    if (!title.trim()) {
+      alert("제목을 입력해주세요.");
+      return;
+    }
+    if (!startDate || !endDate) {
+      alert("시작일과 종료일을 입력해주세요.");
+      return;
+    }
+    if (new Date(startDate) >= new Date(endDate)) {
+      alert("종료일은 시작일보다 늦어야 합니다.");
+      return;
+    }
+    if (!peopleCnt || Number(peopleCnt) <= 0) {
+      alert("올바른 인원수를 입력해주세요.");
+      return;
+    }
+    if (!weekAttend || Number(weekAttend) <= 0) {
+      alert("주간 참여 횟수를 입력해주세요.");
+      return;
+    }
+    if (!fee || Number(fee) < 0) {
+      alert("참가비를 입력해주세요.");
+      return;
+    }
     try {
       let option;
 
       if (authType === "타이머 인증") {
+        if (!timerValue || !timerValue.includes(":")) {
+          alert("올바른 시간 형식을 입력해주세요. (예: 01:30:00)");
+          return;
+        }
+
         const [hours, minutes] = timerValue.split(":").map(Number);
+        if (isNaN(hours) || isNaN(minutes)) {
+          alert("올바른 시간 형식을 입력해주세요.");
+          return;
+        }
+
         const totalMinutes = hours * 60 + minutes;
         option = { time: totalMinutes };
       } else {
+        if (!attendanceTimeRange || !attendanceTimeRange.includes("~")) {
+          alert("올바른 시간 범위를 입력해주세요. (예: 09:00 ~ 18:00)");
+          return;
+        }
         const [startTime, endTime] = attendanceTimeRange
           .split("~")
           .map((v) => v.trim());
@@ -63,6 +101,7 @@ export default function MakeChallengePage() {
       setChallengeId(response.data.challengeId);
       setIsSummaryModalVisible(true);
     } catch (error) {
+      alert("챌린지 생성에 실패했습니다. 다시 시도해주세요.");
       console.error("챌린지 생성 실패:", error);
     }
   };
