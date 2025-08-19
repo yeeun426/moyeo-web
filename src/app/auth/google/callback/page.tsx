@@ -36,7 +36,6 @@ const GoogleCallbackPage = () => {
         );
 
         const data = await res.json();
-        console.log("구글 로그인 응답:", data);
 
         if (!data.data?.jwtAccessToken && !data?.data.newUser) {
           console.error("JWT 없음");

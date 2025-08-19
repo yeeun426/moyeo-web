@@ -38,8 +38,6 @@ export const challengeService = {
       if (!token) {
         throw new Error("토큰이 없습니다.");
       }
-      console.log(token);
-      console.log("보낼 payload:", JSON.stringify(params));
 
       const response = await apiRequest("/v1/challenges", {
         method: "POST",
@@ -49,8 +47,6 @@ export const challengeService = {
         },
         body: JSON.stringify(params),
       });
-
-      console.log("챌린지 생성 성공:", response);
       return response;
     } catch (error) {
       console.error("챌린지 생성 실패:", error);

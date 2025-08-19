@@ -41,7 +41,6 @@ export const userService = {
     bank?: string;
     accountNumber?: string;
   }): Promise<string> {
-    console.log(JSON.stringify(params));
     const response = await apiRequest("/v1/users/register", {
       method: "POST",
       headers: {
@@ -50,7 +49,6 @@ export const userService = {
       body: JSON.stringify(params),
     });
 
-    console.log("사용자 등록 성공:", response);
     return response.data.userId;
   },
 
@@ -68,8 +66,6 @@ export const userService = {
       },
       body: JSON.stringify(params),
     });
-
-    console.log("닉네임 유효성 검사 성공:", response);
     return response.message;
   },
 };
