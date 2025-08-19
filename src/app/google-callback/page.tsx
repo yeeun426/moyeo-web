@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 
-export default async function GoogleCallback({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>;
-}) {
-  const code =
-    typeof searchParams?.code === "string" ? searchParams.code : undefined;
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function GoogleCallback({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const code = typeof params?.code === "string" ? params.code : undefined;
 
   if (!code) {
     console.error("Google OAuth code 없음");
