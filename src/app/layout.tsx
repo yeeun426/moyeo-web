@@ -12,7 +12,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className="font-paperlogy">{children}</body>
+      <body className="font-paperlogy">
+        {/* 모바일 고정 컨테이너 */}
+        <div className="min-h-screen bg-gray-100 flex justify-center">
+          <div
+            className="w-full bg-white relative"
+            style={{
+              maxWidth: "600px",
+              minHeight: "100vh",
+              boxShadow: "0 0 20px rgba(0,0,0,0.1)",
+            }}
+          >
+            {children}
+          </div>
+        </div>
+      </body>
     </html>
   );
 }

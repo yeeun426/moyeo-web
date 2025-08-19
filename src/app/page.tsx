@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 // 2.5초 후 라우팅
-const splashTimeout = 250000;
+const splashTimeout = 2500;
 const BACKGROUND_COLOR = "#FDE6D9";
 
 export default function SplashScreen() {

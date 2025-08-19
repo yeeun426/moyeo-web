@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
+import { userService } from "service/userApiService";
 
 const CHARACTER_IMAGES = [
   "/images/cat_profile.png",
@@ -25,28 +26,25 @@ export default function CharacterSelectScreen() {
   const account = searchParams.get("account") || "";
 
   const handleGoToSuccess = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/users`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            provider,
-            oauthId,
-            nickname,
-            character: CHARACTER_NAMES[selectedIndex],
-            bank,
-            accountNumber: account,
-          }),
-        }
-      );
+    if (!provider || !oauthId || !nickname) {
+      alert("잘못된 접근입니다. 소셜 로그인부터 다시 진행해주세요.");
+      router.replace("/login");
+      return;
+    }
 
-      const data = await res.json();
+    try {
+      const data = await userService.postUsers({
+        provider,
+        oauthId,
+        nickname,
+        character: CHARACTER_NAMES[selectedIndex],
+        bank,
+        accountNumber: account,
+      });
       console.log("회원 등록 완료:", data);
 
       router.replace(
-        `/success?nickname=${nickname}&selectedCharacter=${CHARACTER_NAMES[selectedIndex]}`
+        `/success?nickname=${encodeURIComponent(nickname)}&selectedCharacter=${encodeURIComponent(CHARACTER_NAMES[selectedIndex])}`
       );
     } catch (err) {
       console.error("회원 등록 실패:", err);
