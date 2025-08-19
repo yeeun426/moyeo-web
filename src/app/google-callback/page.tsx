@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 
-const GoogleCallback = async ({
-  searchParams,
-}: {
-  searchParams: { code?: string };
-}) => {
-  const code = searchParams.code;
+interface GoogleCallbackProps {
+  searchParams?: Record<string, string | string[] | undefined>;
+}
+
+const GoogleCallback = async ({ searchParams }: GoogleCallbackProps) => {
+  const code =
+    typeof searchParams?.code === "string" ? searchParams.code : undefined;
 
   if (!code) {
     console.error("Google OAuth code 없음");
@@ -30,9 +31,6 @@ const GoogleCallback = async ({
       return <p>로그인에 실패했습니다.</p>;
     }
 
-    // 토큰 저장
-    // 서버 컴포넌트에서는 localStorage 불가 → 다음 페이지에서 저장 권장
-    // 또는 redirect 전에 쿼리로 넘겨서 client-side 저장
     const { jwtAccessToken, oauthId, newUser } = data.data;
 
     const nextUrl = newUser
