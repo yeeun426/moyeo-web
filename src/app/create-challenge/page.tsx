@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import CustomDropdown from "../../components/CustomDropdown.ts";
-import FixedBtn from "@/components/FixedBtn";
-import Header from "@/components/Header";
-import challengeApiService from "@/service/challengeService";
+import CustomDropdown from "../../components/CustomDropdown";
+import FixedBtn from "../../components/FixedBtn";
+import Header from "../../components/Header";
+import challengeApiService from "../../service/challengeService";
 
 export default function MakeChallengePage() {
   const router = useRouter();
@@ -200,7 +200,7 @@ export default function MakeChallengePage() {
         </div>
       </div>
 
-      <FixedBtn label="Create Challenge" onClick={handleCreateChallenge} />
+      <FixedBtn label="Create Challenge" onPress={handleCreateChallenge} />
 
       {isSummaryModalVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
