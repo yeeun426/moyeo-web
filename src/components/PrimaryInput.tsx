@@ -1,7 +1,6 @@
 import React from "react";
 
-interface PrimaryInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+type PrimaryInputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 const PrimaryInput: React.FC<PrimaryInputProps> = ({
   className = "",
