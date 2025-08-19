@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 
-interface GoogleCallbackProps {
+export default async function GoogleCallback({
+  searchParams,
+}: {
   searchParams?: Record<string, string | string[] | undefined>;
-}
-
-const GoogleCallback = async ({ searchParams }: GoogleCallbackProps) => {
+}) {
   const code =
     typeof searchParams?.code === "string" ? searchParams.code : undefined;
 
@@ -42,6 +42,4 @@ const GoogleCallback = async ({ searchParams }: GoogleCallbackProps) => {
     console.error("Google 로그인 처리 실패:", err);
     return <p>문제가 발생했습니다.</p>;
   }
-};
-
-export default GoogleCallback;
+}
