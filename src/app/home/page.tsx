@@ -4,22 +4,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 
-const Home = () => {
-  const monthNames = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
+const monthNames = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
+const Home = () => {
   const { formattedDate, currentDate } = useMemo(() => {
     const today = new Date();
     const formatted = `Today, ${today.getDate()} ${monthNames[today.getMonth()]}`;

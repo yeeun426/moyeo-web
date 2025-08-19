@@ -16,6 +16,17 @@ export const tokenUtils = {
   },
 };
 
+interface ApiResponse<T> {
+  status: string;
+  code: number;
+  message: string;
+  data: T;
+}
+
+interface ChallengeData {
+  challengeId: string;
+}
+
 export const challengeService = {
   async MakeChallenge(params: {
     title: string;
@@ -32,7 +43,7 @@ export const challengeService = {
     };
     rule: number;
     paymentId: string;
-  }): Promise<any> {
+  }): Promise<ApiResponse<ChallengeData>> {
     try {
       const token = tokenUtils.getToken();
       if (!token) {
