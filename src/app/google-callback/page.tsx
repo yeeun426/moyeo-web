@@ -5,13 +5,20 @@ export const dynamic = "force-dynamic";
 
 type SearchParams = { [key: string]: string | string[] | undefined };
 
-export default async function GoogleCallback(props: {
-  searchParams: SearchParams | Promise<SearchParams>;
-}) {
-  // searchParams가 Promise인지 확인하고 처리
-  const searchParams = await Promise.resolve(props.searchParams);
+// Next.js App Router의 올바른 PageProps 타입 정의
+interface PageProps {
+  params?: { [key: string]: string | string[] };
+  searchParams?: Promise<SearchParams>;
+}
+
+export default async function GoogleCallback({ searchParams }: PageProps) {
+  // searchParams는 항상 Promise로 처리
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+
   const code =
-    typeof searchParams?.code === "string" ? searchParams.code : undefined;
+    typeof resolvedSearchParams?.code === "string"
+      ? resolvedSearchParams.code
+      : undefined;
 
   if (!code) {
     console.error("Google OAuth code 없음");
