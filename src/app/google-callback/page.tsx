@@ -1,12 +1,15 @@
 import { redirect } from "next/navigation";
 
+// 동적 렌더링 강제 (정적 생성 비활성화)
+export const dynamic = "force-dynamic";
+
 interface PageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 export default async function GoogleCallback({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const code = typeof params?.code === "string" ? params.code : undefined;
+  const code =
+    typeof searchParams?.code === "string" ? searchParams.code : undefined;
 
   if (!code) {
     console.error("Google OAuth code 없음");
