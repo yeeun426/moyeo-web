@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 const Home = () => {
-  const today = new Date();
   const monthNames = [
     "Jan",
     "Feb",
@@ -21,9 +20,14 @@ const Home = () => {
     "Dec",
   ];
 
-  const formattedDate = useMemo(() => {
-    return `Today, ${today.getDate()} ${monthNames[today.getMonth()]}`;
-  }, [today]);
+  const { formattedDate, currentDate } = useMemo(() => {
+    const today = new Date();
+    const formatted = `Today, ${today.getDate()} ${monthNames[today.getMonth()]}`;
+    return {
+      formattedDate: formatted,
+      currentDate: today.getDate(),
+    };
+  }, [monthNames]);
 
   return (
     <main className="bg-white min-h-screen">
@@ -59,7 +63,7 @@ const Home = () => {
         <div className="flex justify-evenly w-full my-6 text-sm font-bold">
           {[...Array(7)].map((_, idx) => {
             const offset = idx - 3;
-            const date = today.getDate() + offset;
+            const date = currentDate + offset;
             return (
               <div
                 key={idx}
@@ -81,7 +85,7 @@ const Home = () => {
         <p className="text-gray-500 text-base">9:00 - 16:00 모각코</p>
         <p className="text-gray-500 text-base mb-6">20:00 - 21:00 : 알고리즘</p>
 
-        <h3 className="text-xl font-bold font-paperlogy w-full text-left">
+        <h3 className="text-lg font-bold  w-full text-left">
           당신의 챌린지를 골라보세요 !
         </h3>
         <div className="flex gap-4 mt-4 mb-6">
@@ -97,7 +101,7 @@ const Home = () => {
         </div>
 
         <div className="bg-purple-400 rounded-2xl px-6 py-4 flex items-center gap-4 text-white w-full">
-          <p className="font-jua text-lg">맘에 드는 챌린지가 없나요 ?</p>
+          <p className="text-lg">맘에 드는 챌린지가 없나요 ?</p>
           <Link href="/create-challenge">
             <button className="bg-white text-purple-400 text-xs font-semibold px-3 py-1 rounded-md">
               Make Now
