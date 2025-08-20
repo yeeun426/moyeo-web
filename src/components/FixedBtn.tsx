@@ -21,7 +21,7 @@ const FixedBtn = ({ url, label = "Add Challenge", onPress }: FixedBtnProps) => {
   };
 
   return (
-    <div className="fixed bottom-5 left-5 right-5 z-50">
+    <div className="m-5 z-50">
       <button
         className="w-full bg-gradient-to-b from-[#FE8C00] to-[#FE6338] rounded-[14px] shadow-lg hover:shadow-xl transition-shadow duration-200 focus:outline-none focus:ring-2 focus:ring-orange-400"
         onClick={goToNext}

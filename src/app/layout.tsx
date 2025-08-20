@@ -1,4 +1,6 @@
+// app/layout.tsx
 import "./globals.css";
+import MainLayout from "../components/MainLayout";
 
 export const metadata = {
   title: "My App",
@@ -16,14 +18,14 @@ export default function RootLayout({
         {/* 모바일 고정 컨테이너 */}
         <div className="min-h-screen bg-gray-100 flex justify-center">
           <div
-            className="w-full bg-white relative"
+            className="w-full bg-white relative overflow-hidden"
             style={{
               maxWidth: "600px",
               minHeight: "100vh",
               boxShadow: "0 0 20px rgba(0,0,0,0.1)",
             }}
           >
-            {children}
+            <MainLayout>{children}</MainLayout>
           </div>
         </div>
       </body>

@@ -30,7 +30,7 @@ const Home = () => {
   }, [monthNames]);
 
   return (
-    <main className="bg-white min-h-screen">
+    <main className="bg-white">
       <div className="w-full h-[200px] relative">
         <Image
           src="/images/header_home.png"
