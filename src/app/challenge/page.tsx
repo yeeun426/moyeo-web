@@ -39,11 +39,9 @@ export default function Challenge() {
     try {
       setLoading(true);
       setError(null);
-
       const response = await challengeApiService.getChallenges({
         page: 0,
-        limit: 20,
-        status: "RECRUITING",
+        limit: 15,
       });
 
       if (response.status === "success") {
