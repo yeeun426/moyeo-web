@@ -202,7 +202,7 @@ export default function Challenge() {
         </div>
       </div>
 
-      <FixedBtn url="/make-challenge" label="Add Challenge" />
+      <FixedBtn url="/create-challenge" label="Add Challenge" />
     </div>
   );
 }
