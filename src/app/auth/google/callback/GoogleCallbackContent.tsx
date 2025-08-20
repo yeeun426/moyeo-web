@@ -10,7 +10,7 @@ const GoogleCallbackContent = () => {
   useEffect(() => {
     const code = searchParams.get("code");
     const state = searchParams.get("state");
-    const savedState = localStorage.getItem("oauth_state");
+    const savedState = sessionStorage.getItem("oauth_state");
 
     if (!code) {
       console.error("Google code 없음");
@@ -43,7 +43,12 @@ const GoogleCallbackContent = () => {
           return;
         }
 
-        localStorage.setItem("accessToken", data.data.jwtAccessToken);
+        const token = data.data?.jwtAccessToken;
+        if (token) {
+          sessionStorage.setItem("accessToken", token);
+        } else {
+          sessionStorage.removeItem("accessToken");
+        }
 
         if (data?.data.newUser) {
           router.push(

@@ -16,7 +16,7 @@ const GoogleLoginButton = () => {
     const RESPONSE_TYPE = "code";
     const STATE = crypto.randomUUID();
 
-    localStorage.setItem("oauth_state", STATE);
+    sessionStorage.setItem("oauth_state", STATE);
 
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
       REDIRECT_URI
