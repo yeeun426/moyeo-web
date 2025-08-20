@@ -34,7 +34,7 @@ const tabRoutes = [
 
 export default function TabBar({ currentPath }: CustomTabBarProps) {
   return (
-    <div className="fixed bottom-0 left-1/2 max-w-[600px] -translate-x-1/2 w-full bg-white h-24 flex justify-around items-center shadow-[0_-2px_10px_rgba(0,0,0,0.05)] px-5 z-50">
+    <div className="fixed bottom-0 left-1/2 max-w-[600px] -translate-x-1/2 w-full bg-white h-24 flex justify-around items-center shadow-[0_-2px_10px_rgba(0,0,0,0.05)] px-10 z-50">
       {tabRoutes.map((route) => {
         const Icon = route.icon;
         const isActive = currentPath === route.path;
@@ -42,7 +42,11 @@ export default function TabBar({ currentPath }: CustomTabBarProps) {
 
         if (isHome) {
           return (
-            <Link key={route.name} href={route.path} className="relative">
+            <Link
+              key={route.name}
+              href={route.path}
+              className="relative flex-1 justify-items-center"
+            >
               <div className="w-16 h-16 rounded-full bg-gradient-to-b from-[#FD371F] to-[#FF844B] flex items-center justify-center mb-5 shadow-[0_12px_6px_rgba(241,82,35,0.2)]">
                 <Icon size={18} color="white" />
               </div>
