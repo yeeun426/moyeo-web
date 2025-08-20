@@ -84,12 +84,12 @@ export default function Challenge() {
   };
 
   // 시간 포맷팅 함수 (분을 시간:분 형태로 변환)
-  const formatTime = (minutes?: number) => {
-    if (!minutes) return "";
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
-  };
+  // const formatTime = (minutes?: number) => {
+  //   if (minutes == null) return "";
+  //   const hours = Math.floor(minutes / 60);
+  //   const mins = minutes % 60;
+  //   return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
+  // };
 
   // 챌린지 타입별 아이콘 색상
   const getIconColor = (type: string, status: string) => {

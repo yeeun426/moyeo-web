@@ -44,7 +44,12 @@ const KakaoCallbackContent = () => {
           return;
         }
 
-        sessionStorage.setItem("accessToken", data.data.jwtAccessToken);
+        const token = data.data?.jwtAccessToken;
+        if (token) {
+          sessionStorage.setItem("accessToken", token);
+        } else {
+          sessionStorage.removeItem("accessToken");
+        }
 
         if (data?.data.newUser) {
           router.push(`/info-name?provider=KAKAO&oauthId=${data.data.oauthId}`);
