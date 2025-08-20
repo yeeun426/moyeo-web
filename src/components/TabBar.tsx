@@ -17,10 +17,10 @@ const tabRoutes = [
     label: "Challenge",
   },
   {
-    name: "info-character",
-    path: "/info-character",
+    name: "create",
+    path: "/create-challenge",
     icon: PenTool,
-    label: "Character",
+    label: "Create",
   },
   { name: "home", path: "/home", icon: Home, label: "Home" },
   { name: "success", path: "/success", icon: Search, label: "Success" },
