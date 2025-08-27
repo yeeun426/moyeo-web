@@ -19,22 +19,25 @@ const monthNames = [
   "Dec",
 ];
 
-type Challenge = {
+interface Challenge {
   challengeId: string;
   title: string;
   startDate: string;
   endDate: string;
-  type: string;
+  type: "TIME" | "ATTENDANCE" | "CONTENT";
+  maxParticipants: number;
+  participantsCount: number;
   fee: number;
   description: string;
   status: string;
-  option?: {
-    time?: number;
-    start?: string;
-    end?: string;
-  };
+  option: { time?: number; start?: string; end?: string };
   rule: number;
-};
+}
+
+interface ChallengeContent {
+  challenge: Challenge;
+  participationStatus: string;
+}
 
 const Home = () => {
   const { formattedDate, today } = useMemo(() => {
@@ -98,7 +101,9 @@ const Home = () => {
 
         if (res.ok) {
           const challenges =
-            body?.data?.content?.map((item: unknown) => item.challenge) ?? [];
+            body?.data?.content?.map(
+              (item: ChallengeContent) => item.challenge
+            ) ?? [];
           setMyChallenges(challenges);
         } else {
           console.error("내 챌린지 불러오기 실패:", body?.message);
