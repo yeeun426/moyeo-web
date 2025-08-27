@@ -90,7 +90,12 @@ export default function Challenge() {
     return type === "TIME" ? "orange" : "#BABABA";
   };
 
-  const nickname = sessionStorage.getItem("nickname") || "사용자";
+  const [nickname, setNickname] = useState<string | null>(null);
+
+  useEffect(() => {
+    setNickname(sessionStorage.getItem("nickname"));
+  }, []);
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#FCE3D2" }}>
       <Header background="#FCE3D2" title="" />

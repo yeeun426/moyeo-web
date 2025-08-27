@@ -45,10 +45,13 @@ const Home = () => {
       today: today.toISOString().split("T")[0],
     };
   }, []);
+  const [nickname, setNickname] = useState<string | null>(null);
+  const [character, setCharacter] = useState<string | null>(null);
 
-  const nickname = sessionStorage.getItem("nickname");
-  const character = sessionStorage.getItem("character");
-
+  useEffect(() => {
+    setNickname(sessionStorage.getItem("nickname"));
+    setCharacter(sessionStorage.getItem("character"));
+  }, []);
   const [myChallenges, setMyChallenges] = useState<Challenge[]>([]);
 
   // 챌린지를 상태별로 분류

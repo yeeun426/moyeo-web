@@ -30,6 +30,14 @@ export default function ChallengeDetail() {
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [nickname, setNickname] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setNickname(sessionStorage.getItem("nickname"));
+    setUserId(sessionStorage.getItem("userId"));
+  }, []);
+
   useEffect(() => {
     const fetchChallenge = async () => {
       try {
@@ -113,9 +121,6 @@ export default function ChallengeDetail() {
     }
   };
 
-  const nickname = sessionStorage.getItem("nickname") || "";
-  const userId = sessionStorage.getItem("userId") || "";
-
   const handlePayment = async () => {
     try {
       const tossPayments = await loadTossPayments(
@@ -126,7 +131,7 @@ export default function ChallengeDetail() {
         amount: Number(challenge?.fee),
         orderId: `order_${Date.now()}_${userId}`, // 주문 고유값
         orderName: "챌린지 참여",
-        customerName: nickname,
+        customerName: nickname ?? "",
         successUrl: `${window.location.origin}/join/success?challengeId=${id}`,
         failUrl: `${window.location.origin}/join/fail?challengeId=${id}`,
       });
