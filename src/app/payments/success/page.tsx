@@ -7,8 +7,10 @@ export default function PaymentSuccessPage() {
   const sp = useSearchParams();
   const router = useRouter();
   const [msg, setMsg] = useState("결제 승인 중...");
-  const token = sessionStorage.getItem("accessToken") || "";
+
   useEffect(() => {
+    const token = sessionStorage.getItem("accessToken") || "";
+
     const paymentKey = sp.get("paymentKey");
     const orderId = sp.get("orderId");
     const amount = sp.get("amount");

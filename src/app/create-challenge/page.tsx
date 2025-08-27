@@ -31,8 +31,8 @@ export default function MakeChallengePage() {
   };
 
   const handleCreateChallenge = async () => {
-    if (!title.trim() || !startDate || !endDate) {
-      alert("입력을 확인해주세요.");
+    if (!title.trim() || !startDate || !endDate || !fee || Number(fee) <= 0) {
+      alert("필수 입력값을 확인해주세요.");
       return;
     }
 
@@ -54,7 +54,7 @@ export default function MakeChallengePage() {
           ? (() => {
               if (!timerValue.includes(":")) return { time: 0 };
               const [h, m, s] = timerValue.split(":").map(Number);
-              return { time: h * 60 + m + Math.floor((s || 0) / 60) };
+              return { time: h * 60 + m };
             })()
           : {
               start: attendanceTimeRange.split("~")[0],

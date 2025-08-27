@@ -45,9 +45,11 @@ export default function ChallengeDetail() {
             },
           }
         );
-
-        const json = await res.json();
-        setChallenge(json.data);
+        const body = await res.json().catch(() => null);
+        if (!res.ok) {
+          throw new Error(body?.message || `HTTP ${res.status}`);
+        }
+        setChallenge(body?.data);
       } catch (error) {
         console.error("챌린지 상세 불러오기 실패:", error);
       }
@@ -108,9 +110,11 @@ export default function ChallengeDetail() {
           참가비: {challenge.fee}원{"\n"}
           참여 인원: {challenge.participantsCount}/{challenge.maxParticipants}
           {"\n"}
-          {challenge.option?.time
+          {typeof challenge.option?.time === "number"
             ? `타이머 시간: ${challenge.option.time}분`
-            : `출석 범위: ${challenge.option.start} ~ ${challenge.option.end}`}
+            : challenge.option?.start && challenge.option?.end
+              ? `출석 범위: ${challenge.option.start} ~ ${challenge.option.end}`
+              : "인증 옵션 정보 없음"}
         </p>
 
         <h2 className="text-lg font-bold mb-3">Similar Challenge</h2>
@@ -125,7 +129,7 @@ export default function ChallengeDetail() {
       {/* 하단 버튼 */}
       <div className="absolute bottom-5 left-6 right-6">
         <button
-          onClick={() => router.push("/make-challenge")}
+          onClick={() => router.push("/creates-challenge")}
           className="w-full bg-[#FF6A00] text-white py-4 rounded-xl font-bold text-base"
         >
           Join Challenge
