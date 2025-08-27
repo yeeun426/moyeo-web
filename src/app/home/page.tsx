@@ -226,9 +226,7 @@ const Home = () => {
         {/* 진행중인 챌린지 */}
         {categorizedChallenges.ongoing.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-lg font-bold mb-3 text-orange-600">
-              🔥 오늘의 챌린지
-            </h3>
+            <h3 className="text-lg font-bold mb-3">🔥 오늘의 챌린지</h3>
             {categorizedChallenges.ongoing.map((challenge) => (
               <ChallengeCard
                 key={challenge.challengeId}
@@ -241,33 +239,36 @@ const Home = () => {
 
         {/* 예정된 챌린지 */}
         {categorizedChallenges.upcoming.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-lg font-bold mb-3 text-blue-600">
+          <div className="mb-8">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
               ⏰ 예정된 챌린지
             </h3>
-            {categorizedChallenges.upcoming.map((challenge) => (
-              <ChallengeCard
-                key={challenge.challengeId}
-                challenge={challenge}
-                type="upcoming"
-              />
-            ))}
-          </div>
-        )}
-
-        {/* 완료된 챌린지 */}
-        {categorizedChallenges.completed.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-lg font-bold mb-3 text-gray-600">
-              ✅ 완료한 챌린지
-            </h3>
-            {categorizedChallenges.completed.map((challenge) => (
-              <ChallengeCard
-                key={challenge.challengeId}
-                challenge={challenge}
-                type="completed"
-              />
-            ))}
+            <div className="flex flex-col gap-3">
+              {categorizedChallenges.upcoming.map((challenge) => {
+                const daysLeft = getDaysUntilStart(challenge.startDate);
+                return (
+                  <Link
+                    key={challenge.challengeId}
+                    href={`/challenge-detail/${challenge.challengeId}`}
+                  >
+                    <div className="relative border-l-4 border-blue-500 px-4 py-3 bg-blue-50 rounded-md hover:bg-blue-100 transition">
+                      <div className="flex justify-between items-center">
+                        <h4 className="font-bold text-lg text-blue-700">
+                          {challenge.title}
+                        </h4>
+                        <span className="text-sm bg-blue-500 text-white rounded-full px-3 py-1">
+                          {daysLeft}일 후 시작
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        시작일: {formatDate(challenge.startDate)} / 참가비{" "}
+                        {challenge.fee.toLocaleString()}원
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         )}
 
