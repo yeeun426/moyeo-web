@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import CustomDropdown from "../../components/CustomDropdown";
 import FixedBtn from "../../components/FixedBtn";
 import Header from "../../components/Header";
-import challengeApiService from "../../service/challengeService";
+import { loadTossPayments } from "@tosspayments/payment-sdk";
 
 export default function MakeChallengePage() {
   const router = useRouter();
@@ -22,6 +22,8 @@ export default function MakeChallengePage() {
   const [challengeId, setChallengeId] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSummaryModalVisible, setIsSummaryModalVisible] = useState(false);
+  const nickname = sessionStorage.getItem("nickname");
+  const userId = sessionStorage.getItem("userId");
 
   const handleSelectAuthType = (value: string) => {
     setAuthType(value);
@@ -29,82 +31,55 @@ export default function MakeChallengePage() {
   };
 
   const handleCreateChallenge = async () => {
-    if (!title.trim()) {
-      alert("제목을 입력해주세요.");
+    if (!title.trim() || !startDate || !endDate || !fee || Number(fee) <= 0) {
+      alert("필수 입력값을 확인해주세요.");
       return;
     }
-    if (!startDate || !endDate) {
-      alert("시작일과 종료일을 입력해주세요.");
-      return;
-    }
-    if (new Date(startDate) >= new Date(endDate)) {
-      alert("종료일은 시작일보다 늦어야 합니다.");
-      return;
-    }
-    if (!peopleCnt || Number(peopleCnt) <= 0) {
-      alert("올바른 인원수를 입력해주세요.");
-      return;
-    }
-    if (!weekAttend || Number(weekAttend) <= 0) {
-      alert("주간 참여 횟수를 입력해주세요.");
-      return;
-    }
-    if (!fee || Number(fee) < 0) {
-      alert("참가비를 입력해주세요.");
-      return;
-    }
+
+    const payload = {
+      title,
+      startDate,
+      endDate,
+      type:
+        authType === "타이머 인증"
+          ? "TIME"
+          : authType === "출석 인증"
+            ? "ATTENDANCE"
+            : "CONTENT",
+      maxParticipants: Number(peopleCnt),
+      fee: Number(fee),
+      description,
+      option:
+        authType === "타이머 인증"
+          ? (() => {
+              if (!timerValue.includes(":")) return { time: 0 };
+              const [h, m, s] = timerValue.split(":").map(Number);
+              return { time: h * 60 + m };
+            })()
+          : {
+              start: attendanceTimeRange.split("~")[0],
+              end: attendanceTimeRange.split("~")[1],
+            },
+      rule: Number(weekAttend),
+    };
+
+    sessionStorage.setItem("challengePayload", JSON.stringify(payload));
+
     try {
-      let option;
-
-      if (authType === "타이머 인증") {
-        if (!timerValue || !timerValue.includes(":")) {
-          alert("올바른 시간 형식을 입력해주세요. (예: 01:30:00)");
-          return;
-        }
-
-        const [hours, minutes] = timerValue.split(":").map(Number);
-        if (isNaN(hours) || isNaN(minutes)) {
-          alert("올바른 시간 형식을 입력해주세요.");
-          return;
-        }
-
-        const totalMinutes = hours * 60 + minutes;
-        option = { time: totalMinutes };
-      } else {
-        if (!attendanceTimeRange || !attendanceTimeRange.includes("~")) {
-          alert("올바른 시간 범위를 입력해주세요. (예: 09:00 ~ 18:00)");
-          return;
-        }
-        const [startTime, endTime] = attendanceTimeRange
-          .split("~")
-          .map((v) => v.trim());
-        option = { start: startTime, end: endTime };
-      }
-
-      const payload = {
-        title,
-        startDate,
-        endDate,
-        type:
-          authType === "타이머 인증"
-            ? "TIME"
-            : authType === "출석 인증"
-              ? "ATTENDANCE"
-              : "CONTENT",
-        maxParticipants: Number(peopleCnt),
-        fee: Number(fee),
-        description,
-        option,
-        rule: Number(weekAttend),
-        paymentId: "724f3ce4-7d8d-4fbf-852b-64a3252b83c5",
-      };
-
-      const response = await challengeApiService.MakeChallenge(payload);
-      setChallengeId(response.data.challengeId);
-      setIsSummaryModalVisible(true);
-    } catch (error) {
-      alert("챌린지 생성에 실패했습니다. 다시 시도해주세요.");
-      console.error("챌린지 생성 실패:", error);
+      const tossPayments = await loadTossPayments(
+        process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!
+      );
+      await tossPayments.requestPayment("CARD", {
+        amount: Number(fee),
+        orderId: `order_${Date.now()}_${userId}`,
+        orderName: title,
+        customerName: nickname ?? "",
+        successUrl: `${window.location.protocol}//${window.location.host}/payments/success`,
+        failUrl: `${window.location.protocol}//${window.location.host}/payments/fail`,
+      });
+    } catch (err) {
+      console.error(err);
+      alert("결제 요청에 실패했습니다.");
     }
   };
 
