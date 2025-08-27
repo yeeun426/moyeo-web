@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Search, Calendar } from "lucide-react";
-import challengeApiService from "service/challengeService";
+import challengeApiService, {
+  ChallengeListItem,
+} from "service/challengeService";
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
@@ -20,7 +22,7 @@ function getIconColor(type: string, status: string) {
 export default function SearchPage() {
   const router = useRouter();
   const [searchInput, setSearchInput] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<ChallengeListItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleTagPress = (text: string) => {
@@ -78,7 +80,7 @@ export default function SearchPage() {
         </div>
 
         {/* 검색 전 → 추천 검색어 */}
-        {results.length === 0 && !loading && (
+        {results.length === 0 && !loading && searchInput.trim() === "" && (
           <>
             <p className="text-[15px] text-[#7e7e7e] font-jua mb-3">
               최근 검색어

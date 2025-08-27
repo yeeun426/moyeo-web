@@ -31,7 +31,7 @@ interface ChallengeData {
   challengeId: string;
 }
 
-interface ChallengeListItem {
+export interface ChallengeListItem {
   challengeId: string;
   title: string;
   startDate: string;
