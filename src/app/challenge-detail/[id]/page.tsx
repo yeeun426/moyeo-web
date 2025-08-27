@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { loadTossPayments } from "@tosspayments/payment-sdk";
+import { ConfirmModal } from "components/Modal";
 
 type Challenge = {
   challengeId: string;
@@ -26,11 +28,12 @@ export default function ChallengeDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchChallenge = async () => {
       try {
-        const token = sessionStorage.getItem("accessToken"); // RN의 AsyncStorage → localStorage
+        const token = sessionStorage.getItem("accessToken");
         if (!token) {
           throw new Error("토큰이 없습니다.");
         }
@@ -74,6 +77,65 @@ export default function ChallengeDetail() {
       (startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     );
     return diff > 0 ? `D-${diff}` : "진행중";
+  };
+
+  const handleJoinChallenge = async () => {
+    try {
+      const token = sessionStorage.getItem("accessToken");
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        router.replace("/login");
+        return;
+      }
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/challenges/${id}/check`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      const body = await res.json();
+
+      if (!res.ok) {
+        alert(body?.message || "참여할 수 없습니다.");
+        return;
+      }
+
+      // 참여 가능하면 모달 열기
+      setIsModalOpen(true);
+    } catch (err) {
+      alert("참여 확인 중 오류가 발생했습니다.");
+      console.error(err);
+    }
+  };
+
+  const nickname = sessionStorage.getItem("nickname") || "";
+  const userId = sessionStorage.getItem("userId") || "";
+
+  const handlePayment = async () => {
+    try {
+      const tossPayments = await loadTossPayments(
+        process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!
+      );
+
+      await tossPayments.requestPayment("CARD", {
+        amount: Number(challenge?.fee),
+        orderId: `order_${Date.now()}_${userId}`, // 주문 고유값
+        orderName: "챌린지 참여",
+        customerName: nickname,
+        successUrl: `${window.location.origin}/join/success?challengeId=${id}`,
+        failUrl: `${window.location.origin}/join/fail?challengeId=${id}`,
+      });
+    } catch (err) {
+      console.error(err);
+      alert("결제 요청에 실패했습니다.");
+    } finally {
+      setIsModalOpen(false);
+    }
   };
 
   return (
@@ -129,12 +191,17 @@ export default function ChallengeDetail() {
       {/* 하단 버튼 */}
       <div className="absolute bottom-5 left-6 right-6">
         <button
-          onClick={() => router.push("/creates-challenge")}
+          onClick={handleJoinChallenge}
           className="w-full bg-[#FF6A00] text-white py-4 rounded-xl font-bold text-base"
         >
           Join Challenge
         </button>
       </div>
+      <ConfirmModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handlePayment}
+      />
     </div>
   );
 }

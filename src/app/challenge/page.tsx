@@ -85,27 +85,19 @@ export default function Challenge() {
     return `${date.getMonth() + 1}.${date.getDate()}`;
   };
 
-  // 시간 포맷팅 함수 (분을 시간:분 형태로 변환)
-  // const formatTime = (minutes?: number) => {
-  //   if (minutes == null) return "";
-  //   const hours = Math.floor(minutes / 60);
-  //   const mins = minutes % 60;
-  //   return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
-  // };
-
-  // 챌린지 타입별 아이콘 색상
   const getIconColor = (type: string, status: string) => {
     if (status !== "RECRUITING") return "#BABABA";
     return type === "TIME" ? "orange" : "#BABABA";
   };
 
+  const nickname = sessionStorage.getItem("nickname") || "사용자";
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#FCE3D2" }}>
       <Header background="#FCE3D2" title="" />
 
       <div className="px-5 pb-24 pt-5">
         <h1 className="text-2xl font-bold mb-5 leading-8">
-          <span style={{ color: "#FE8C00" }}>모여모여님</span>
+          <span style={{ color: "#FE8C00" }}>{nickname}님</span>
           <br />
           어떤 도전을 해볼까요?
         </h1>
