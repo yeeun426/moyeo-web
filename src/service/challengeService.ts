@@ -31,7 +31,7 @@ interface ChallengeData {
   challengeId: string;
 }
 
-interface ChallengeListItem {
+export interface ChallengeListItem {
   challengeId: string;
   title: string;
   startDate: string;
@@ -113,10 +113,10 @@ export const challengeService = {
       if (params?.page !== undefined)
         queryParams.append("page", params.page.toString());
       if (params?.limit !== undefined)
-        queryParams.append("limit", params.limit.toString());
+        queryParams.append("size", params.limit.toString());
       if (params?.type) queryParams.append("type", params.type);
       if (params?.status) queryParams.append("status", params.status);
-      if (params?.search) queryParams.append("search", params.search);
+      if (params?.search) queryParams.append("title", params.search);
 
       const queryString = queryParams.toString();
       const url = queryString

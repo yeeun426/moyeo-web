@@ -22,7 +22,7 @@ const tabRoutes = [
     label: "Create",
   },
   { name: "home", path: "/home", icon: Home, label: "Home" },
-  { name: "success", path: "/success", icon: Search, label: "Success" },
+  { name: "search", path: "/search", icon: Search, label: "Search" },
   {
     name: "info-accounts",
     path: "/info-accounts",

@@ -13,6 +13,7 @@ const tabPages = [
   "/create-challenge",
   "/success",
   "/info-accounts",
+  "/search",
   "/challenge-detail/[id]",
 ];
 
