@@ -82,6 +82,11 @@ export default function ChallengeDetail() {
   const handleJoinChallenge = async () => {
     try {
       const token = sessionStorage.getItem("accessToken");
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        router.replace("/login");
+        return;
+      }
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/challenges/${id}/check`,
         {

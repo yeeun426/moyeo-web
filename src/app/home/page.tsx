@@ -129,7 +129,7 @@ const Home = () => {
     type,
   }: {
     challenge: Challenge;
-    type: "ongoing" | "upcoming" | "completed";
+    type: "ongoing" | "upcoming";
   }) => {
     const baseClasses = "rounded-2xl p-4 mb-3 border-2 transition-all";
 
@@ -144,19 +144,14 @@ const Home = () => {
         statusText = `진행중 (${formatDate(challenge.endDate)}까지)`;
         statusColor = "bg-orange-600";
         break;
-      case "upcoming":
+      case "upcoming": {
         const daysLeft = getDaysUntilStart(challenge.startDate);
         cardClasses =
           "bg-gradient-to-r from-blue-400 to-blue-500 text-white border-blue-300";
         statusText = `${daysLeft}일 후 시작 (${formatDate(challenge.startDate)})`;
         statusColor = "bg-blue-600";
         break;
-      case "completed":
-        cardClasses =
-          "bg-gradient-to-r from-gray-300 to-gray-400 text-gray-700 border-gray-200";
-        statusText = "완료됨";
-        statusColor = "bg-gray-500";
-        break;
+      }
     }
 
     return (

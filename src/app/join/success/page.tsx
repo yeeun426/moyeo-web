@@ -16,6 +16,11 @@ export default function PaymentSuccessPage() {
     const confirmPayment = async () => {
       try {
         const token = sessionStorage.getItem("accessToken");
+        if (!token) {
+          alert("로그인이 필요합니다.");
+          router.replace("/login");
+          return;
+        }
 
         // 1. 결제 승인 API (백엔드에 confirm 요청)
         const res = await fetch(
@@ -38,7 +43,7 @@ export default function PaymentSuccessPage() {
         const body = await res.json();
         if (!res.ok) {
           alert(body?.message || "결제 승인 실패");
-          router.replace(`/payments/fail`);
+          router.replace(`/join/fail`);
           return;
         }
 
