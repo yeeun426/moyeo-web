@@ -13,6 +13,7 @@ const tabPages = [
   "/create-challenge",
   "/success",
   "/info-accounts",
+  "/search",
 ];
 
 export default function MainLayout({ children }: MainLayoutProps) {
