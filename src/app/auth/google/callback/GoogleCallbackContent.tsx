@@ -44,6 +44,9 @@ const GoogleCallbackContent = () => {
         }
 
         sessionStorage.setItem("accessToken", data.data.jwtAccessToken);
+        sessionStorage.setItem("userId", data.data.userId);
+        sessionStorage.setItem("nickname", data.data.nickname);
+        sessionStorage.setItem("character", data.data.character);
 
         if (data?.data.newUser) {
           router.push(
