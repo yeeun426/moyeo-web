@@ -2,7 +2,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Trophy, PenTool, Home, Search, MapPin } from "lucide-react";
 
 interface CustomTabBarProps {
@@ -17,10 +16,10 @@ const tabRoutes = [
     label: "Challenge",
   },
   {
-    name: "info-character",
-    path: "/info-character",
+    name: "create",
+    path: "/create-challenge",
     icon: PenTool,
-    label: "Character",
+    label: "Create",
   },
   { name: "home", path: "/home", icon: Home, label: "Home" },
   { name: "success", path: "/success", icon: Search, label: "Success" },

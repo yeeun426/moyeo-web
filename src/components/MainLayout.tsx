@@ -13,11 +13,17 @@ const tabPages = [
   "/create-challenge",
   "/success",
   "/info-accounts",
+  "/challenge-detail/[id]",
 ];
 
 export default function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
-  const showTabBar = tabPages.includes(pathname);
+
+  const showTabBar = tabPages.some((page) =>
+    page.includes("[id]")
+      ? pathname.startsWith(page.replace("[id]", ""))
+      : page === pathname
+  );
 
   return (
     <div>

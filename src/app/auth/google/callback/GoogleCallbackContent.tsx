@@ -43,12 +43,19 @@ const GoogleCallbackContent = () => {
           return;
         }
 
-        const token = data.data?.jwtAccessToken;
-        if (token) {
-          sessionStorage.setItem("accessToken", token);
-        } else {
-          sessionStorage.removeItem("accessToken");
+        if (data?.data?.jwtAccessToken) {
+          sessionStorage.setItem("accessToken", data.data.jwtAccessToken);
         }
+        if (data?.data?.userId != null) {
+          sessionStorage.setItem("userId", String(data.data.userId));
+        }
+        if (data?.data?.nickname) {
+          sessionStorage.setItem("nickname", data.data.nickname);
+        }
+        if (data?.data?.character) {
+          sessionStorage.setItem("character", data.data.character);
+        }
+        sessionStorage.removeItem("oauth_state");
 
         if (data?.data.newUser) {
           router.push(

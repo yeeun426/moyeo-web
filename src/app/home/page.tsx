@@ -28,6 +28,8 @@ const Home = () => {
       currentDate: today.getDate(),
     };
   }, [monthNames]);
+  const nickname = sessionStorage.getItem("nickname");
+  const character = sessionStorage.getItem("character");
 
   return (
     <main className="bg-white">
@@ -41,14 +43,14 @@ const Home = () => {
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 text-center">
           <div className="mx-auto w-20 h-20 rounded-full bg-white flex items-center justify-center">
             <Image
-              src="/images/cat.png"
-              alt="cat"
+              src={`/images/${character}.png`}
+              alt={`${character}`}
               width={70}
               height={70}
               className="rounded-full"
             />
           </div>
-          <p className="mt-2 text-lg font-medium text-black">예은</p>
+          <p className="mt-2 text-lg font-medium text-black">{nickname}</p>
         </div>
       </div>
 
