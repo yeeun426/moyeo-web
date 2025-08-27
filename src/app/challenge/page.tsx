@@ -5,6 +5,7 @@ import FixedBtn from "../../components/FixedBtn";
 import Header from "../../components/Header";
 import { Search, Calendar } from "lucide-react";
 import challengeApiService from "service/challengeService";
+import { useRouter } from "next/navigation";
 
 interface ChallengeItem {
   challengeId: string;
@@ -26,6 +27,7 @@ interface ChallengeItem {
 }
 
 export default function Challenge() {
+  const router = useRouter();
   const [challenges, setChallenges] = useState<ChallengeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -155,7 +157,7 @@ export default function Challenge() {
                 className="bg-white rounded-2xl shadow-md p-4 flex items-center cursor-pointer hover:shadow-lg transition-shadow"
                 onClick={() => {
                   // 챌린지 상세 페이지로 이동 로직 추가 가능
-                  console.log("챌린지 선택:", challenge);
+                  router.replace(`/challenge-detail/${challenge.challengeId}`);
                 }}
               >
                 <Calendar

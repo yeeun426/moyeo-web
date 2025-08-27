@@ -2,7 +2,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Trophy, PenTool, Home, Search, MapPin } from "lucide-react";
 
 interface CustomTabBarProps {
