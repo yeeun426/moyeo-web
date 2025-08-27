@@ -98,7 +98,7 @@ const Home = () => {
 
         if (res.ok) {
           const challenges =
-            body?.data?.content?.map((item: any) => item.challenge) ?? [];
+            body?.data?.content?.map((item: unknown) => item.challenge) ?? [];
           setMyChallenges(challenges);
         } else {
           console.error("내 챌린지 불러오기 실패:", body?.message);
