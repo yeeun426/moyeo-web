@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import CustomDropdown from "../../components/CustomDropdown";
 import FixedBtn from "../../components/FixedBtn";
@@ -22,8 +22,14 @@ export default function MakeChallengePage() {
   const [challengeId, setChallengeId] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSummaryModalVisible, setIsSummaryModalVisible] = useState(false);
-  const nickname = sessionStorage.getItem("nickname");
-  const userId = sessionStorage.getItem("userId");
+
+  const [nickname, setNickname] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setNickname(sessionStorage.getItem("nickname"));
+    setUserId(sessionStorage.getItem("userId"));
+  }, []);
 
   const handleSelectAuthType = (value: string) => {
     setAuthType(value);
