@@ -1,5 +1,7 @@
+"use client";
+
 import Header from "components/Header";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Clock,
   Calendar,
@@ -7,18 +9,62 @@ import {
   AlertTriangle,
   Moon,
 } from "lucide-react";
+import dayjs from "dayjs";
+import { getWeekRange } from "utils/getWeekRange";
 
-const page = () => {
-  const weeklyData = [
-    { day: "M", hours: 13 },
-    { day: "T", hours: 3 },
-    { day: "W", hours: 12 },
-    { day: "T", hours: 4 },
-    { day: "F", hours: 5 },
-    { day: "S", hours: 0 },
-    { day: "S", hours: 0 },
-  ];
-  const maxHours = Math.max(...weeklyData.map((d) => Math.abs(d.hours)));
+type ApiDay = {
+  date: string;
+  totalMinutes: number;
+};
+
+type WeeklyData = {
+  day: string;
+  hours: number;
+};
+
+const weekMap = ["S", "M", "T", "W", "T", "F", "S"];
+
+const WeeklyStudy = () => {
+  const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([]);
+  const [maxHours, setMaxHours] = useState(1);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("accessToken");
+
+    async function fetchData() {
+      const { from, to } = getWeekRange();
+      console.log(from, to);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/studies/days?from=${from}&to=${to}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${token}`,
+          },
+        }
+      );
+      const json = await res.json();
+
+      const days: ApiDay[] = json.data.days;
+
+      // 요일별 합산 (일:0 ~ 토:6)
+      const weekly: WeeklyData[] = Array(7)
+        .fill(0)
+        .map((_, i) => ({ day: weekMap[i], hours: 0 }));
+
+      days.forEach((d) => {
+        const dayIndex = dayjs(d.date).day(); // 0=Sunday ~ 6=Saturday
+        const hours = Math.floor(d.totalMinutes / 60);
+        weekly[dayIndex].hours += hours;
+      });
+
+      setWeeklyData(weekly);
+      setMaxHours(Math.max(...weekly.map((d) => d.hours), 1));
+    }
+
+    fetchData();
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -50,7 +96,6 @@ const page = () => {
             <div className="flex items-end justify-between h-32 mb-2">
               {weeklyData.map((data, index) => {
                 const height = (Math.abs(data.hours) / maxHours) * 100;
-                const isNegative = data.hours < 0;
 
                 return (
                   <div
@@ -58,11 +103,7 @@ const page = () => {
                     className="flex flex-col items-center flex-1"
                   >
                     <div className="text-xs text-gray-500 mb-1">
-                      {data.hours > 0
-                        ? `+${data.hours}h`
-                        : data.hours < 0
-                          ? `${data.hours}h`
-                          : ""}
+                      {data.hours > 0 ? `+${data.hours}h` : ""}
                     </div>
                     <div className="w-8 flex flex-col justify-end h-24">
                       <div
@@ -149,4 +190,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default WeeklyStudy;
