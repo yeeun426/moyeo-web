@@ -181,7 +181,7 @@ export default function ChallengeDetail() {
     const diff = Math.ceil(
       (startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     );
-    return diff > 0 ? `D-${diff}` : "진행중";
+    return diff > 0 ? `D-${diff}` : `D+${Math.abs(diff + 1)}`;
   };
 
   const handleJoinChallenge = async () => {
