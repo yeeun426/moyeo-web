@@ -22,7 +22,7 @@ type WeeklyData = {
   hours: number;
 };
 
-type WeeklyReport = {
+type WeeklyStat = {
   userId: string;
   startDate: string;
   totalMinutes: number;
@@ -32,12 +32,23 @@ type WeeklyReport = {
   highAttendanceDays: string[];
 };
 
+type RoutineReport = {
+  userId: string;
+  startDate: string;
+  report: {
+    routineAnalysis: string;
+    emotionalFeedback: string;
+    nextWeekRoutine: string;
+  };
+};
+
 const weekMap = ["S", "M", "T", "W", "T", "F", "S"];
 
 const WeeklyStudy = () => {
   const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([]);
   const [maxHours, setMaxHours] = useState(1);
-  const [report, setReport] = useState<WeeklyReport | null>(null);
+  const [stat, setStat] = useState<WeeklyStat | null>(null);
+  const [report, setReport] = useState<RoutineReport | null>(null);
 
   useEffect(() => {
     const token = sessionStorage.getItem("accessToken");
@@ -74,7 +85,7 @@ const WeeklyStudy = () => {
       setMaxHours(Math.max(...weekly.map((d) => d.hours), 1));
     }
 
-    async function fetchReport() {
+    async function fetchStats() {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/routines/stat/me`,
         {
@@ -86,11 +97,28 @@ const WeeklyStudy = () => {
         }
       );
       const json = await res.json();
+      setStat(json.data);
+    }
+
+    async function fetchReport() {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/routines/report/me`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      const json = await res.json();
       setReport(json.data);
     }
 
     fetchData();
     fetchReport();
+    fetchStats();
   }, []);
 
   return (
@@ -104,9 +132,7 @@ const WeeklyStudy = () => {
             </div>
             <div className="flex-1 bg-gray-50 rounded-2xl rounded-tl-sm p-4 shadow-sm">
               <p className="text-gray-800 text-sm leading-relaxed">
-                지난 하루 숙제서도 꾸준히 학습을 이어가시는 모습이 인상
-                깊었습니다. 특히 반복되는 일상 속에서도 자신의 루틴을 지키기
-                위해 노력한 점이 아주 멋졌어요. 한 주 동안 정말 수고 많으셨어요!
+                {report ? report.report.emotionalFeedback : "로딩 중..."}
               </p>
             </div>
           </div>
@@ -153,35 +179,35 @@ const WeeklyStudy = () => {
               <Clock className="w-5 h-5 text-gray-400 mx-auto mb-1" />
               <div className="text-xs text-gray-500">총 공부 시간</div>
               <div className="text-lg font-bold text-gray-800">
-                {report ? `${Math.floor(report.totalMinutes / 60)}시간` : "-"}
+                {stat ? `${Math.floor(stat.totalMinutes / 60)}시간` : "-"}
               </div>
             </div>
             <div className="text-center">
               <Calendar className="w-5 h-5 text-gray-400 mx-auto mb-1" />
               <div className="text-xs text-gray-500">하루 평균</div>
               <div className="text-lg font-bold text-gray-800">
-                {report ? `${(report.avgMinutes / 60).toFixed(1)}시간` : "-"}
+                {stat ? `${(stat.avgMinutes / 60).toFixed(1)}시간` : "-"}
               </div>
             </div>
             <div className="text-center">
               <Moon className="w-5 h-5 text-gray-400 mx-auto mb-1" />
               <div className="text-xs text-gray-500">집중 요일</div>
               <div className="text-lg font-bold text-gray-800">
-                {report ? report.focusDay : "-"}
+                {stat ? stat.focusDay : "-"}
               </div>
             </div>
             <div className="text-center">
               <AlertTriangle className="w-5 h-5 text-red-500 mx-auto mb-1" />
               <div className="text-xs text-gray-500">적게 공부한 요일</div>
               <div className="text-lg font-bold text-gray-800">
-                {report ? report.leastDay : "-"}
+                {stat ? stat.leastDay : "-"}
               </div>
             </div>
             <div className="text-center">
               <CheckCircle className="w-5 h-5 text-green-500 mx-auto mb-1" />
               <div className="text-xs text-gray-500">출석률 높은 날</div>
               <div className="text-lg font-bold text-gray-800">
-                {report ? report.leastDay : "-"}
+                {stat ? stat.highAttendanceDays.join(", ") : "-"}
               </div>
             </div>
           </div>
@@ -193,10 +219,7 @@ const WeeklyStudy = () => {
             다음주 학습 루틴
           </h3>
           <p className="text-sm text-gray-600 leading-relaxed">
-            현재의 패턴을 유지하면서도, 학습이 적었던 주말에는 가벼운 복습
-            위주의 루틴을 넣어보는 걸 추천드립니다. 집중력이 높았던 밤 10~12시
-            시간대를 적극 활용하고, 수요일과 금요일에는 핵심 과제를 배치하는
-            것이 효율적일 것 같아요.
+            {report ? report.report.nextWeekRoutine : "로딩 중..."}
           </p>
         </div>
       </div>
