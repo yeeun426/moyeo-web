@@ -35,6 +35,17 @@ type ChallengeLog = {
   status: string;
 };
 
+type MyLogResponse = {
+  logId: string;
+  nickname: string;
+  content: {
+    type: string;
+    keywords: string[];
+    text: string;
+  };
+  status: string;
+};
+
 export default function ChallengeDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -44,6 +55,8 @@ export default function ChallengeDetail() {
   const [nickname, setNickname] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [logs, setLogs] = useState<ChallengeLog[]>([]);
+  const [myLog, setMyLog] = useState<MyLogResponse | null>(null);
+  const [keywordsError, setKeywordsError] = useState(false);
 
   useEffect(() => {
     setNickname(sessionStorage.getItem("nickname"));
@@ -76,6 +89,41 @@ export default function ChallengeDetail() {
     };
 
     if (id) fetchLogs();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchMyLog = async () => {
+      try {
+        const token = sessionStorage.getItem("accessToken");
+        if (!token) throw new Error("토큰 없음");
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/challenges/${id}/logs/me`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
+
+        if (!res.ok) {
+          // 에러 → 아직 키워드 입력 전
+          setKeywordsError(true);
+          setMyLog(null);
+          return;
+        }
+
+        const body = await res.json();
+        setMyLog(body?.data || null);
+        setKeywordsError(false);
+      } catch (err) {
+        console.error("내 로그 불러오기 실패:", err);
+        setKeywordsError(true);
+      }
+    };
+
+    if (id) fetchMyLog();
   }, [id]);
 
   useEffect(() => {
@@ -196,9 +244,46 @@ export default function ChallengeDetail() {
           </span>
         </div>
       </div>
+      {/* 내 인증 영역 */}
+      <div className="p-6 border-b border-gray-200">
+        {keywordsError ? (
+          // 아직 키워드 입력 X → 목표 설정 UI
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">✏️</span>
+              <p className="font-bold">오늘의 목표를 설정하세요</p>
+            </div>
+            <span className="text-sm text-gray-500">
+              목표 설정 시간 : {challenge.option.start} ~ {challenge.option.end}
+            </span>
+          </div>
+        ) : myLog ? (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="font-bold">오늘의 목표 키워드</p>
+              <span className="text-xs text-red-500">
+                목표 키워드는 변경이 불가능합니다.
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {myLog.content?.keywords?.map((kw) => (
+                <span
+                  key={kw}
+                  className="px-3 py-1 rounded-full bg-gray-200 text-sm font-medium"
+                >
+                  #{kw}
+                </span>
+              ))}
+            </div>
+            <button className="w-full py-3 bg-purple-300 rounded-xl font-bold text-white">
+              내용 인증 출석하러 가기 →
+            </button>
+          </div>
+        ) : null}
+      </div>
 
       {/* 상세 내용 */}
-      <div className="p-6 flex-1">
+      <div className="p-6 flex-1 border-b ">
         <h2 className="text-lg font-bold mt-4 mb-2">Introduce</h2>
         <p className="text-sm leading-[22px] text-[#4f4f4f] mb-4">
           {challenge.description}
