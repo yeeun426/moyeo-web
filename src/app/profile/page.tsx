@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import dayjs from "dayjs";
 import { getWeekRange } from "utils/getWeekRange";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 type ApiDay = {
   date: string;
