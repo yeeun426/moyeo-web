@@ -1,8 +1,9 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 
-export default function PaymentFailPage() {
+function PaymentFailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -21,5 +22,19 @@ export default function PaymentFailPage() {
         홈으로 돌아가기
       </button>
     </div>
+  );
+}
+
+export default function PaymentFailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          로딩 중...
+        </div>
+      }
+    >
+      <PaymentFailContent />
+    </Suspense>
   );
 }

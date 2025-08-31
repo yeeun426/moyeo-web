@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const sp = useSearchParams();
   const router = useRouter();
   const [msg, setMsg] = useState("결제 승인 중...");
@@ -81,5 +81,19 @@ export default function PaymentSuccessPage() {
       <h1 className="mb-2 text-xl font-semibold">결제 결과</h1>
       <p>{msg}</p>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          로딩 중...
+        </div>
+      }
+    >
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

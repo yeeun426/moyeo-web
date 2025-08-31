@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function PaymentFailPage() {
+function PaymentFailContent() {
   const sp = useSearchParams();
   const router = useRouter();
 
@@ -76,5 +76,19 @@ export default function PaymentFailPage() {
         잠시 후 다시 시도해 주세요.
       </p>
     </div>
+  );
+}
+
+export default function PaymentFailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          로딩 중...
+        </div>
+      }
+    >
+      <PaymentFailContent />
+    </Suspense>
   );
 }
