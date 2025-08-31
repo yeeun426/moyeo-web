@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
 import { ConfirmModal } from "components/Modal";
 import { ChevronRight, ChevronDown, Plus, X } from "lucide-react";
+import Challenge from "app/challenge/page";
 
 type Challenge = {
   challengeId: string;
@@ -23,6 +24,7 @@ type Challenge = {
     end?: string;
   };
   rule: number;
+  participating: boolean;
 };
 
 type ChallengeLog = {
@@ -360,140 +362,144 @@ export default function ChallengeDetail() {
         </div>
       </div>
       {/* 내 인증 영역 */}
-      <div className="p-6 border-b border-gray-200">
-        {keywordsError ? (
-          <div>
-            {/* 아직 키워드 입력 X → 목표 설정 UI */}
-            <button
-              className="flex w-full items-center justify-between"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">✏️</span>
-                <p className="font-bold">오늘의 목표를 설정하세요</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">
-                  목표 설정 시간 : {challenge.option.start} ~{" "}
-                  {challenge.option.end}
-                </span>
-                {isExpanded ? <ChevronDown /> : <ChevronRight />}
-              </div>
-            </button>
-            {/* 키워드 입력 섹션 - 슬라이드 애니메이션 */}
-            <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                isExpanded ? "max-h-96 opacity-100 mt-4" : "max-h-0 opacity-0"
-              }`}
-            >
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-800 mb-3">
-                  목표 키워드 입력 (3개 필수)
-                </h3>
-
-                {/* 현재 입력된 키워드들 */}
-                {keywords.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {keywords.map((keyword, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm font-medium"
-                      >
-                        # {keyword}
-                        <button
-                          onClick={() => handleRemoveKeyword(keyword)}
-                          className="hover:bg-purple-200 rounded-full p-0.5"
-                        >
-                          <X size={12} />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* 키워드 입력 필드 */}
-                {keywords.length < 3 && (
-                  <div className="flex gap-2 mb-4">
-                    <input
-                      type="text"
-                      value={currentKeyword}
-                      onChange={(e) => setCurrentKeyword(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="키워드를 입력하세요"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      maxLength={20}
-                    />
-                    <button
-                      onClick={handleAddKeyword}
-                      disabled={
-                        !currentKeyword.trim() ||
-                        keywords.includes(currentKeyword.trim())
-                      }
-                      className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-1"
-                    >
-                      <Plus size={16} />
-                      추가
-                    </button>
-                  </div>
-                )}
-
-                <div className="text-xs text-gray-500 mb-4">
-                  {keywords.length}/3개 입력됨
-                  {keywords.length < 3 && (
-                    <span className="text-red-500 font-medium ml-2">
-                      3개 모두 입력해주세요
-                    </span>
-                  )}
-                  {keywords.length === 3 && (
-                    <span className="text-green-600 font-medium ml-2">
-                      ✓ 완료
-                    </span>
-                  )}
-                </div>
-
-                {/* 저장 버튼 */}
-                <button
-                  onClick={handleSubmitKeywords}
-                  disabled={keywords.length !== 3}
-                  className="w-full py-3 bg-purple-500 text-white rounded-xl font-bold hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  {keywords.length === 3
-                    ? "키워드 저장하기"
-                    : `키워드 ${3 - keywords.length}개 더 입력해주세요`}
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : myLog ? (
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <p className="font-bold">오늘의 목표 키워드</p>
-              <span className="text-xs text-red-500">
-                목표 키워드는 변경이 불가능합니다.
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {myLog.content?.keywords?.map((kw) => (
-                <span
-                  key={kw}
-                  className="px-3 py-1 rounded-full bg-gray-200 text-sm font-medium"
-                >
-                  #{kw}
-                </span>
-              ))}
-            </div>
-            {!showAuthPage && (
+      {challenge?.participating && (
+        <div className="p-6 border-b border-gray-200">
+          {keywordsError ? (
+            <div>
+              {/* 아직 키워드 입력 X → 목표 설정 UI */}
               <button
-                className="w-full py-3 bg-[#A3A0CA] rounded-xl font-bold text-white"
-                onClick={handleGoToAuth}
+                className="flex w-full items-center justify-between"
+                onClick={() => setIsExpanded(!isExpanded)}
               >
-                내용 인증 출석하러 가기 →
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">✏️</span>
+                  <p className="font-bold">오늘의 목표를 설정하세요</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500">
+                    목표 설정 시간 : {challenge.option.start} ~{" "}
+                    {challenge.option.end}
+                  </span>
+                  {isExpanded ? <ChevronDown /> : <ChevronRight />}
+                </div>
               </button>
-            )}
-          </div>
-        ) : null}
-      </div>
+              {/* 키워드 입력 섹션 - 슬라이드 애니메이션 */}
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  isExpanded ? "max-h-96 opacity-100 mt-4" : "max-h-0 opacity-0"
+                }`}
+              >
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-gray-800 mb-3">
+                    목표 키워드 입력 (3개 필수)
+                  </h3>
 
+                  {/* 현재 입력된 키워드들 */}
+                  {keywords.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {keywords.map((keyword, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm font-medium"
+                        >
+                          # {keyword}
+                          <button
+                            onClick={() => handleRemoveKeyword(keyword)}
+                            className="hover:bg-purple-200 rounded-full p-0.5"
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 키워드 입력 필드 */}
+                  {keywords.length < 3 && (
+                    <div className="flex gap-2 mb-4">
+                      <input
+                        type="text"
+                        value={currentKeyword}
+                        onChange={(e) => setCurrentKeyword(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="키워드를 입력하세요"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        maxLength={20}
+                      />
+                      <button
+                        onClick={handleAddKeyword}
+                        disabled={
+                          !currentKeyword.trim() ||
+                          keywords.includes(currentKeyword.trim())
+                        }
+                        className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-1"
+                      >
+                        <Plus size={16} />
+                        추가
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="text-xs text-gray-500 mb-4">
+                    {keywords.length}/3개 입력됨
+                    {keywords.length < 3 && (
+                      <span className="text-red-500 font-medium ml-2">
+                        3개 모두 입력해주세요
+                      </span>
+                    )}
+                    {keywords.length === 3 && (
+                      <span className="text-green-600 font-medium ml-2">
+                        ✓ 완료
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 저장 버튼 */}
+                  <button
+                    onClick={handleSubmitKeywords}
+                    disabled={keywords.length !== 3}
+                    className="w-full py-3 bg-purple-500 text-white rounded-xl font-bold hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {keywords.length === 3
+                      ? "키워드 저장하기"
+                      : `키워드 ${3 - keywords.length}개 더 입력해주세요`}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : myLog ? (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-bold">오늘의 목표 키워드</p>
+                <span className="text-xs text-red-500">
+                  목표 키워드는 변경이 불가능합니다.
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {myLog.content?.keywords?.map((kw) => (
+                  <span
+                    key={kw}
+                    className="px-3 py-1 rounded-full bg-gray-200 text-sm font-medium"
+                  >
+                    #{kw}
+                  </span>
+                ))}
+              </div>
+              {!showAuthPage && (
+                <button
+                  className="w-full py-3 bg-[#A3A0CA] rounded-xl font-bold text-white disabled:cursor-not-allowed"
+                  onClick={handleGoToAuth}
+                  disabled={myLog?.status === "SUCCESS"}
+                >
+                  {myLog?.status !== "SUCCESS"
+                    ? "내용 인증 출석하러 가기 →"
+                    : "인증 완료"}
+                </button>
+              )}
+            </div>
+          ) : null}
+        </div>
+      )}
       {showAuthPage ? (
         <div className="flex-1 flex flex-col">
           {/* 내용 인증 섹션 */}
@@ -581,7 +587,7 @@ export default function ChallengeDetail() {
         </div>
       )}
       {/* 하단 버튼 */}
-      {!showAuthPage && (
+      {!challenge?.participating && (
         <div className="absolute bottom-5 left-6 right-6">
           <button
             onClick={handleJoinChallenge}
