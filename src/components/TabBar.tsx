@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { Trophy, PenTool, Home, Search, MapPin } from "lucide-react";
+import { Trophy, PenTool, Home, Search, Smile } from "lucide-react";
 
 interface CustomTabBarProps {
   currentPath: string;
@@ -24,16 +24,16 @@ const tabRoutes = [
   { name: "home", path: "/home", icon: Home, label: "Home" },
   { name: "search", path: "/search", icon: Search, label: "Search" },
   {
-    name: "info-accounts",
-    path: "/info-accounts",
-    icon: MapPin,
-    label: "Profile",
+    name: "profile",
+    path: "/profile",
+    icon: Smile,
+    label: "AI 피드백",
   },
 ];
 
 export default function TabBar({ currentPath }: CustomTabBarProps) {
   return (
-    <div className="fixed bottom-0 left-1/2 max-w-[600px] -translate-x-1/2 w-full bg-white h-24 flex justify-around items-center shadow-[0_-2px_10px_rgba(0,0,0,0.05)] px-10 z-50">
+    <div className="fixed bottom-0 left-1/2 max-w-[600px] -translate-x-1/2 w-full bg-white h-24 flex justify-around items-center shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50">
       {tabRoutes.map((route) => {
         const Icon = route.icon;
         const isActive = currentPath === route.path;

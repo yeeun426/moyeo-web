@@ -14,6 +14,7 @@ const tabPages = [
   "/success",
   "/info-accounts",
   "/search",
+  "/profile",
   "/challenge-detail/[id]",
 ];
 
