@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
 import { ConfirmModal } from "components/Modal";
+import { ChevronRight, ChevronDown, Plus, X } from "lucide-react";
 
 type Challenge = {
   challengeId: string;
@@ -58,6 +59,10 @@ export default function ChallengeDetail() {
   const [myLog, setMyLog] = useState<MyLogResponse | null>(null);
   const [keywordsError, setKeywordsError] = useState(false);
 
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [currentKeyword, setCurrentKeyword] = useState("");
+
   useEffect(() => {
     setNickname(sessionStorage.getItem("nickname"));
     setUserId(sessionStorage.getItem("userId"));
@@ -90,39 +95,38 @@ export default function ChallengeDetail() {
 
     if (id) fetchLogs();
   }, [id]);
+  const fetchMyLog = async () => {
+    try {
+      const token = sessionStorage.getItem("accessToken");
+      if (!token) throw new Error("토큰 없음");
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/challenges/${id}/logs/me`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        // 에러 → 아직 키워드 입력 전
+        setKeywordsError(true);
+        setMyLog(null);
+        return;
+      }
+
+      const body = await res.json();
+      setMyLog(body?.data || null);
+      setKeywordsError(false);
+    } catch (err) {
+      console.error("내 로그 불러오기 실패:", err);
+      setKeywordsError(true);
+    }
+  };
 
   useEffect(() => {
-    const fetchMyLog = async () => {
-      try {
-        const token = sessionStorage.getItem("accessToken");
-        if (!token) throw new Error("토큰 없음");
-
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/challenges/${id}/logs/me`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: token,
-            },
-          }
-        );
-
-        if (!res.ok) {
-          // 에러 → 아직 키워드 입력 전
-          setKeywordsError(true);
-          setMyLog(null);
-          return;
-        }
-
-        const body = await res.json();
-        setMyLog(body?.data || null);
-        setKeywordsError(false);
-      } catch (err) {
-        console.error("내 로그 불러오기 실패:", err);
-        setKeywordsError(true);
-      }
-    };
-
     if (id) fetchMyLog();
   }, [id]);
 
@@ -231,6 +235,70 @@ export default function ChallengeDetail() {
     }
   };
 
+  const handleAddKeyword = () => {
+    if (
+      currentKeyword.trim() &&
+      keywords.length < 3 &&
+      !keywords.includes(currentKeyword.trim())
+    ) {
+      setKeywords([...keywords, currentKeyword.trim()]);
+      setCurrentKeyword("");
+    }
+  };
+
+  const handleRemoveKeyword = (keywordToRemove: string) => {
+    setKeywords(keywords.filter((kw) => kw !== keywordToRemove));
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleAddKeyword();
+    }
+  };
+
+  const handleSubmitKeywords = async () => {
+    if (keywords.length !== 3) {
+      alert("키워드 3개를 모두 입력해주세요.");
+      return;
+    }
+
+    try {
+      const token = sessionStorage.getItem("accessToken");
+      if (!token) throw new Error("토큰 없음");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/challenges/${id}/keywords`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({
+            keyword1: keywords[0],
+            keyword2: keywords[1],
+            keyword3: keywords[2],
+          }),
+        }
+      );
+      const body = await res.json();
+      if (!res.ok) {
+        throw new Error(body?.message || "키워드 저장 실패");
+      }
+      // 성공 처리
+      alert("키워드가 저장되었습니다!");
+      // UI 갱신
+      setIsExpanded(false);
+      // -> myLog 다시 불러오기
+      setMyLog(null);
+      setKeywordsError(false);
+      // 재호출
+      fetchMyLog();
+    } catch (err) {
+      console.error("키워드 저장 실패:", err);
+      alert("키워드 저장 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white relative">
       {/* Header */}
@@ -247,15 +315,107 @@ export default function ChallengeDetail() {
       {/* 내 인증 영역 */}
       <div className="p-6 border-b border-gray-200">
         {keywordsError ? (
-          // 아직 키워드 입력 X → 목표 설정 UI
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">✏️</span>
-              <p className="font-bold">오늘의 목표를 설정하세요</p>
+          <div>
+            {/* 아직 키워드 입력 X → 목표 설정 UI */}
+            <button
+              className="flex w-full items-center justify-between"
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">✏️</span>
+                <p className="font-bold">오늘의 목표를 설정하세요</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">
+                  목표 설정 시간 : {challenge.option.start} ~{" "}
+                  {challenge.option.end}
+                </span>
+                {isExpanded ? <ChevronDown /> : <ChevronRight />}
+              </div>
+            </button>
+            {/* 키워드 입력 섹션 - 슬라이드 애니메이션 */}
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                isExpanded ? "max-h-96 opacity-100 mt-4" : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-800 mb-3">
+                  목표 키워드 입력 (3개 필수)
+                </h3>
+
+                {/* 현재 입력된 키워드들 */}
+                {keywords.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {keywords.map((keyword, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm font-medium"
+                      >
+                        # {keyword}
+                        <button
+                          onClick={() => handleRemoveKeyword(keyword)}
+                          className="hover:bg-purple-200 rounded-full p-0.5"
+                        >
+                          <X size={12} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* 키워드 입력 필드 */}
+                {keywords.length < 3 && (
+                  <div className="flex gap-2 mb-4">
+                    <input
+                      type="text"
+                      value={currentKeyword}
+                      onChange={(e) => setCurrentKeyword(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="키워드를 입력하세요"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      maxLength={20}
+                    />
+                    <button
+                      onClick={handleAddKeyword}
+                      disabled={
+                        !currentKeyword.trim() ||
+                        keywords.includes(currentKeyword.trim())
+                      }
+                      className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-1"
+                    >
+                      <Plus size={16} />
+                      추가
+                    </button>
+                  </div>
+                )}
+
+                <div className="text-xs text-gray-500 mb-4">
+                  {keywords.length}/3개 입력됨
+                  {keywords.length < 3 && (
+                    <span className="text-red-500 font-medium ml-2">
+                      3개 모두 입력해주세요
+                    </span>
+                  )}
+                  {keywords.length === 3 && (
+                    <span className="text-green-600 font-medium ml-2">
+                      ✓ 완료
+                    </span>
+                  )}
+                </div>
+
+                {/* 저장 버튼 */}
+                <button
+                  onClick={handleSubmitKeywords}
+                  disabled={keywords.length !== 3}
+                  className="w-full py-3 bg-purple-500 text-white rounded-xl font-bold hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  {keywords.length === 3
+                    ? "키워드 저장하기"
+                    : `키워드 ${3 - keywords.length}개 더 입력해주세요`}
+                </button>
+              </div>
             </div>
-            <span className="text-sm text-gray-500">
-              목표 설정 시간 : {challenge.option.start} ~ {challenge.option.end}
-            </span>
           </div>
         ) : myLog ? (
           <div>
