@@ -22,11 +22,22 @@ type WeeklyData = {
   hours: number;
 };
 
+type WeeklyReport = {
+  userId: string;
+  startDate: string;
+  totalMinutes: number;
+  avgMinutes: number;
+  focusDay: string;
+  leastDay: string;
+  highAttendanceDays: string[];
+};
+
 const weekMap = ["S", "M", "T", "W", "T", "F", "S"];
 
 const WeeklyStudy = () => {
   const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([]);
   const [maxHours, setMaxHours] = useState(1);
+  const [report, setReport] = useState<WeeklyReport | null>(null);
 
   useEffect(() => {
     const token = sessionStorage.getItem("accessToken");
@@ -63,7 +74,23 @@ const WeeklyStudy = () => {
       setMaxHours(Math.max(...weekly.map((d) => d.hours), 1));
     }
 
+    async function fetchReport() {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/routines/stat/me`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${token}`,
+          },
+        }
+      );
+      const json = await res.json();
+      setReport(json.data);
+    }
+
     fetchData();
+    fetchReport();
   }, []);
 
   return (
@@ -125,49 +152,36 @@ const WeeklyStudy = () => {
             <div className="text-center">
               <Clock className="w-5 h-5 text-gray-400 mx-auto mb-1" />
               <div className="text-xs text-gray-500">총 공부 시간</div>
-              <div className="text-lg font-bold text-gray-800">20시간</div>
+              <div className="text-lg font-bold text-gray-800">
+                {report ? `${Math.floor(report.totalMinutes / 60)}시간` : "-"}
+              </div>
             </div>
             <div className="text-center">
               <Calendar className="w-5 h-5 text-gray-400 mx-auto mb-1" />
               <div className="text-xs text-gray-500">하루 평균</div>
-              <div className="text-lg font-bold text-gray-800">2.6시간</div>
+              <div className="text-lg font-bold text-gray-800">
+                {report ? `${(report.avgMinutes / 60).toFixed(1)}시간` : "-"}
+              </div>
+            </div>
+            <div className="text-center">
+              <Moon className="w-5 h-5 text-gray-400 mx-auto mb-1" />
+              <div className="text-xs text-gray-500">집중 요일</div>
+              <div className="text-lg font-bold text-gray-800">
+                {report ? report.focusDay : "-"}
+              </div>
+            </div>
+            <div className="text-center">
+              <AlertTriangle className="w-5 h-5 text-red-500 mx-auto mb-1" />
+              <div className="text-xs text-gray-500">적게 공부한 요일</div>
+              <div className="text-lg font-bold text-gray-800">
+                {report ? report.leastDay : "-"}
+              </div>
             </div>
             <div className="text-center">
               <CheckCircle className="w-5 h-5 text-green-500 mx-auto mb-1" />
-              <div className="text-xs text-gray-500">학습 시간 놓은 승한</div>
-              <div className="text-lg font-bold text-gray-800">월, 수, 금</div>
-            </div>
-          </div>
-
-          {/* Status Items */}
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3 p-3 bg-red-50 rounded-lg">
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              <div className="flex-1">
-                <div className="text-sm font-medium text-red-700">
-                  집중 요일
-                </div>
-                <div className="text-xs text-red-600">수요일 (5시간)</div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
-              <AlertTriangle className="w-4 h-4 text-yellow-600" />
-              <div className="flex-1">
-                <div className="text-sm font-medium text-yellow-700">
-                  적게 공부한 요일
-                </div>
-                <div className="text-xs text-yellow-600">토요일 (1시간)</div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-              <Moon className="w-4 h-4 text-blue-600" />
-              <div className="flex-1">
-                <div className="text-sm font-medium text-blue-700">
-                  집중 시간대
-                </div>
-                <div className="text-xs text-blue-600">밤 10시~12시</div>
+              <div className="text-xs text-gray-500">출석률 높은 날</div>
+              <div className="text-lg font-bold text-gray-800">
+                {report ? report.leastDay : "-"}
               </div>
             </div>
           </div>

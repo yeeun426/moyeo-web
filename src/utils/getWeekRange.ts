@@ -1,20 +1,15 @@
 import dayjs from "dayjs";
 
 export function getWeekRange(today = dayjs()) {
-  let monday;
+  // 이번 주 일요일을 찾기 (오늘이 일요일이면 오늘, 아니면 이전 일요일)
+  const thisWeekSunday = today.subtract(today.day(), "day");
 
-  if (today.day() === 0) {
-    // 오늘이 일요일이면 지난 월요일 = 오늘 - 6일
-    monday = today.subtract(6, "day");
-  } else {
-    // 월~토요일이면 이번 주 월요일 = 오늘 - (day() - 1)
-    monday = today.subtract(today.day() - 1, "day");
-  }
-
-  const sunday = monday.add(6, "day");
+  // 지난 주 일요일부터 이번 주 토요일까지
+  const lastSunday = thisWeekSunday.subtract(7, "day");
+  const thisSaturday = thisWeekSunday.subtract(1, "day");
 
   return {
-    from: monday.format("YYYY-MM-DD"),
-    to: sunday.format("YYYY-MM-DD"),
+    from: lastSunday.format("YYYY-MM-DD"),
+    to: thisSaturday.format("YYYY-MM-DD"),
   };
 }
