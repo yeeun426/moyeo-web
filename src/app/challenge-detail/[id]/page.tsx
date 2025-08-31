@@ -340,6 +340,34 @@ export default function ChallengeDetail() {
       if (!res.ok) throw new Error(body?.message || "인증 실패");
 
       alert("인증이 완료되었습니다!");
+      setMyLog((prev) =>
+        prev
+          ? {
+              ...prev,
+              content: { ...prev.content, text: authText },
+              status: "SUCCESS",
+            }
+          : prev
+      );
+      // 목록 새로고침
+      try {
+        const token2 = sessionStorage.getItem("accessToken");
+        if (token2) {
+          const res2 = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/challenges/${id}/logs`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: token2,
+              },
+            }
+          );
+          const body2 = await res2.json().catch(() => null);
+          if (res2.ok) setLogs(body2?.data?.content || []);
+        }
+      } catch (e) {
+        console.error("인증 후 로그 갱신 실패:", e);
+      }
       setAuthText("");
       setShowAuthPage(false);
     } catch (err) {
