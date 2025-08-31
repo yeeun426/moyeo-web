@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import dayjs from "dayjs";
 import { getWeekRange } from "utils/getWeekRange";
+import { useRouter } from "next/router";
 
 type ApiDay = {
   date: string;
@@ -53,8 +54,16 @@ const WeeklyStudy = () => {
   const [loading, setLoading] = useState(true);
   const [reportError, setReportError] = useState(false);
 
+  const router = useRouter();
+
   useEffect(() => {
     const token = sessionStorage.getItem("accessToken");
+
+    if (!token) {
+      console.warn("accessToken이 없습니다. 로그인 페이지로 이동합니다.");
+      router.push("/login");
+      return;
+    }
 
     async function fetchData() {
       try {
@@ -72,7 +81,7 @@ const WeeklyStudy = () => {
         );
         const json = await res.json();
 
-        const days: ApiDay[] = json.data.days;
+        const days: ApiDay[] = json.data.days ?? [];
 
         // 요일별 합산 (일:0 ~ 토:6)
         const weekly: WeeklyData[] = Array(7)
@@ -104,6 +113,7 @@ const WeeklyStudy = () => {
             },
           }
         );
+        if (!res.ok) throw new Error(`stat fetch failed: ${res.status}`);
         const json = await res.json();
         setStat(json.data);
       } catch (error) {
@@ -123,7 +133,7 @@ const WeeklyStudy = () => {
             },
           }
         );
-
+        if (!res.ok) throw new Error(`report fetch failed: ${res.status}`);
         const json = await res.json();
 
         if (json.data && json.data.report) {
@@ -134,8 +144,6 @@ const WeeklyStudy = () => {
       } catch (error) {
         console.error("Failed to fetch report:", error);
         setReportError(true);
-      } finally {
-        setLoading(false);
       }
     }
 
