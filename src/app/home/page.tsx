@@ -50,6 +50,20 @@ const Home = () => {
   }, []);
   const [nickname, setNickname] = useState<string | null>(null);
   const [character, setCharacter] = useState<string | null>(null);
+  const CHARACTER_IMAGES = [
+    "/images/cat_profile.png",
+    "/images/bear_profile.png",
+    "/images/rabbit_profile.png",
+    "/images/pig_profile.png",
+  ];
+  const CHARACTER_NAMES = ["CAT", "BEAR", "RABBIT", "PIG"];
+
+  // character 값으로 이미지 경로 구하는 헬퍼
+  const getCharacterImage = (character: string | null) => {
+    if (!character) return "/images/default.png"; // 기본 이미지 (없으면 null 방지)
+    const index = CHARACTER_NAMES.indexOf(character.toUpperCase());
+    return index !== -1 ? CHARACTER_IMAGES[index] : "/images/default.png";
+  };
 
   useEffect(() => {
     setNickname(sessionStorage.getItem("nickname"));
@@ -161,21 +175,6 @@ const Home = () => {
         break;
       }
     }
-
-    const CHARACTER_IMAGES = [
-      "/images/cat_profile.png",
-      "/images/bear_profile.png",
-      "/images/rabbit_profile.png",
-      "/images/pig_profile.png",
-    ];
-    const CHARACTER_NAMES = ["CAT", "BEAR", "RABBIT", "PIG"];
-
-    // character 값으로 이미지 경로 구하는 헬퍼
-    const getCharacterImage = (character: string | null) => {
-      if (!character) return "/images/default.png"; // 기본 이미지 (없으면 null 방지)
-      const index = CHARACTER_NAMES.indexOf(character.toUpperCase());
-      return index !== -1 ? CHARACTER_IMAGES[index] : "/images/default.png";
-    };
 
     return (
       <Link
