@@ -24,6 +24,17 @@ type Challenge = {
   rule: number;
 };
 
+type ChallengeLog = {
+  logId: string;
+  nickname: string;
+  content: {
+    type: string;
+    keywords: string[];
+    text: string;
+  };
+  status: string;
+};
+
 export default function ChallengeDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -32,11 +43,40 @@ export default function ChallengeDetail() {
 
   const [nickname, setNickname] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [logs, setLogs] = useState<ChallengeLog[]>([]);
 
   useEffect(() => {
     setNickname(sessionStorage.getItem("nickname"));
     setUserId(sessionStorage.getItem("userId"));
   }, []);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const token = sessionStorage.getItem("accessToken");
+        if (!token) throw new Error("토큰이 없습니다.");
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/challenges/${id}/logs`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
+
+        const body = await res.json();
+        if (!res.ok) throw new Error(body?.message || `HTTP ${res.status}`);
+
+        setLogs(body?.data?.content || []);
+      } catch (err) {
+        console.error("챌린지 로그 불러오기 실패:", err);
+      }
+    };
+
+    if (id) fetchLogs();
+  }, [id]);
 
   useEffect(() => {
     const fetchChallenge = async () => {
@@ -183,13 +223,31 @@ export default function ChallengeDetail() {
               ? `출석 범위: ${challenge.option.start} ~ ${challenge.option.end}`
               : "인증 옵션 정보 없음"}
         </p>
-
-        <h2 className="text-lg font-bold mb-3">Similar Challenge</h2>
         <div className="flex flex-row justify-between flex-wrap gap-5">
-          <div className="w-[160px] h-[160px] rounded-[19px] border border-[#e5e5e5] flex items-center justify-center" />
-          <div className="w-[160px] h-[160px] rounded-[19px] border border-[#e5e5e5] flex items-center justify-center" />
-          <div className="w-[160px] h-[160px] rounded-[19px] border border-[#e5e5e5] flex items-center justify-center" />
-          <div className="w-[160px] h-[160px] rounded-[19px] border border-[#e5e5e5] flex items-center justify-center" />
+          {logs.length > 0 ? (
+            logs.slice(0, 4).map((log) => (
+              <div
+                key={log.logId}
+                className="w-[160px] h-[160px] rounded-[19px] border border-[#e5e5e5] flex flex-col items-center justify-center p-3 text-center"
+              >
+                <p className="text-sm font-bold">{log.nickname}</p>
+                <p className="text-xs text-gray-600 line-clamp-3">
+                  {log.content?.text}
+                </p>
+                <span
+                  className={`mt-2 text-xs px-2 py-1 rounded ${
+                    log.status === "SUCCESS"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-red-100 text-red-600"
+                  }`}
+                >
+                  {log.status}
+                </span>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-400">아직 인증 내용이 없습니다.</p>
+          )}
         </div>
       </div>
 
