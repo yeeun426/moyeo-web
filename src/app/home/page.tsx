@@ -162,6 +162,21 @@ const Home = () => {
       }
     }
 
+    const CHARACTER_IMAGES = [
+      "/images/cat_profile.png",
+      "/images/bear_profile.png",
+      "/images/rabbit_profile.png",
+      "/images/pig_profile.png",
+    ];
+    const CHARACTER_NAMES = ["CAT", "BEAR", "RABBIT", "PIG"];
+
+    // character 값으로 이미지 경로 구하는 헬퍼
+    const getCharacterImage = (character: string | null) => {
+      if (!character) return "/images/default.png"; // 기본 이미지 (없으면 null 방지)
+      const index = CHARACTER_NAMES.indexOf(character.toUpperCase());
+      return index !== -1 ? CHARACTER_IMAGES[index] : "/images/default.png";
+    };
+
     return (
       <Link
         key={challenge.challengeId}
@@ -209,8 +224,8 @@ const Home = () => {
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 text-center">
           <div className="mx-auto w-20 h-20 rounded-full bg-white flex items-center justify-center">
             <Image
-              src={`/images/${character}.png`}
-              alt={`${character}`}
+              src={getCharacterImage(character)}
+              alt={character ?? "character"}
               width={70}
               height={70}
               className="rounded-full"
