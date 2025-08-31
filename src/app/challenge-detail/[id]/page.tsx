@@ -63,6 +63,9 @@ export default function ChallengeDetail() {
   const [keywords, setKeywords] = useState<string[]>([]);
   const [currentKeyword, setCurrentKeyword] = useState("");
 
+  const [showAuthPage, setShowAuthPage] = useState(false);
+  const [authText, setAuthText] = useState("");
+
   useEffect(() => {
     setNickname(sessionStorage.getItem("nickname"));
     setUserId(sessionStorage.getItem("userId"));
@@ -299,6 +302,50 @@ export default function ChallengeDetail() {
     }
   };
 
+  const handleGoToAuth = () => {
+    setShowAuthPage(true);
+  };
+
+  const handleSubmitAuth = async () => {
+    if (!authText.trim()) {
+      alert("내용을 입력해주세요.");
+      return;
+    }
+    if (!myLog?.logId) {
+      alert("logId가 없습니다. 먼저 키워드를 저장해주세요.");
+      return;
+    }
+
+    try {
+      const token = sessionStorage.getItem("accessToken");
+      if (!token) throw new Error("토큰 없음");
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/challenges/${id}/logs/${myLog?.logId}/text`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({
+            text: authText,
+          }),
+        }
+      );
+
+      const body = await res.json();
+      if (!res.ok) throw new Error(body?.message || "인증 실패");
+
+      alert("인증이 완료되었습니다!");
+      setAuthText("");
+      setShowAuthPage(false);
+    } catch (err) {
+      console.error(err);
+      alert("인증 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white relative">
       {/* Header */}
@@ -435,76 +482,115 @@ export default function ChallengeDetail() {
                 </span>
               ))}
             </div>
-            <button className="w-full py-3 bg-purple-300 rounded-xl font-bold text-white">
-              내용 인증 출석하러 가기 →
-            </button>
+            {!showAuthPage && (
+              <button
+                className="w-full py-3 bg-[#A3A0CA] rounded-xl font-bold text-white"
+                onClick={handleGoToAuth}
+              >
+                내용 인증 출석하러 가기 →
+              </button>
+            )}
           </div>
         ) : null}
       </div>
 
-      {/* 상세 내용 */}
-      <div className="p-6 flex-1 border-b ">
-        <h2 className="text-lg font-bold mt-4 mb-2">Introduce</h2>
-        <p className="text-sm leading-[22px] text-[#4f4f4f] mb-4">
-          {challenge.description}
-        </p>
+      {showAuthPage ? (
+        <div className="flex-1 flex flex-col">
+          {/* 내용 인증 섹션 */}
+          <div className="p-6 flex-1 flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold">내용 인증</h2>
+              <span className="text-sm text-gray-500">
+                {authText.length}자/100자
+              </span>
+            </div>
 
-        <h2 className="text-lg font-bold mt-4 mb-2">Rules</h2>
-        <p className="text-sm leading-[22px] text-[#4f4f4f] mb-4 whitespace-pre-line">
-          인증 방식:{" "}
-          {challenge.type === "TIME"
-            ? "타이머 인증"
-            : challenge.type === "ATTENDANCE"
-              ? "출석 인증"
-              : "내용 인증"}
-          {"\n"}
-          주간 인증 횟수: {challenge.rule}회{"\n"}
-          참가비: {challenge.fee}원{"\n"}
-          참여 인원: {challenge.participantsCount}/{challenge.maxParticipants}
-          {"\n"}
-          {typeof challenge.option?.time === "number"
-            ? `타이머 시간: ${challenge.option.time}분`
-            : challenge.option?.start && challenge.option?.end
-              ? `출석 범위: ${challenge.option.start} ~ ${challenge.option.end}`
-              : "인증 옵션 정보 없음"}
-        </p>
-        <div className="flex flex-row justify-between flex-wrap gap-5">
-          {logs.length > 0 ? (
-            logs.slice(0, 4).map((log) => (
-              <div
-                key={log.logId}
-                className="w-[160px] h-[160px] rounded-[19px] border border-[#e5e5e5] flex flex-col items-center justify-center p-3 text-center"
-              >
-                <p className="text-sm font-bold">{log.nickname}</p>
-                <p className="text-xs text-gray-600 line-clamp-3">
-                  {log.content?.text}
-                </p>
-                <span
-                  className={`mt-2 text-xs px-2 py-1 rounded ${
-                    log.status === "SUCCESS"
-                      ? "bg-green-100 text-green-600"
-                      : "bg-red-100 text-red-600"
-                  }`}
-                >
-                  {log.status}
-                </span>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-gray-400">아직 인증 내용이 없습니다.</p>
-          )}
+            <textarea
+              value={authText}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setAuthText(e.target.value)
+              }
+              placeholder="오늘 배운 내용을 키워드 위주로 정리해주세요."
+              className="flex-1 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent min-h-[300px]"
+              maxLength={100}
+            />
+
+            <button
+              onClick={handleSubmitAuth}
+              disabled={!authText.trim()}
+              className="w-full py-4 bg-orange-500 text-white rounded-xl font-bold text-lg hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors mt-6"
+            >
+              출석 하기
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="p-6 flex-1 border-b ">
+          <h2 className="text-lg font-bold mt-4 mb-2">Introduce</h2>
+          <p className="text-sm leading-[22px] text-[#4f4f4f] mb-4">
+            {challenge.description}
+          </p>
 
+          <h2 className="text-lg font-bold mt-4 mb-2">Rules</h2>
+          <p className="text-sm leading-[22px] text-[#4f4f4f] mb-4 whitespace-pre-line">
+            인증 방식:{" "}
+            {challenge.type === "TIME"
+              ? "타이머 인증"
+              : challenge.type === "ATTENDANCE"
+                ? "출석 인증"
+                : "내용 인증"}
+            {"\n"}
+            주간 인증 횟수: {challenge.rule}회{"\n"}
+            참가비: {challenge.fee}원{"\n"}
+            참여 인원: {challenge.participantsCount}/{challenge.maxParticipants}
+            {"\n"}
+            {typeof challenge.option?.time === "number"
+              ? `타이머 시간: ${challenge.option.time}분`
+              : challenge.option?.start && challenge.option?.end
+                ? `출석 범위: ${challenge.option.start} ~ ${challenge.option.end}`
+                : "인증 옵션 정보 없음"}
+          </p>
+          <div className="flex flex-row justify-between flex-wrap gap-5">
+            {logs.length > 0 ? (
+              logs.slice(0, 4).map((log) => (
+                <div
+                  key={log.logId}
+                  className="w-[160px] h-[160px] rounded-[19px] border border-[#e5e5e5] flex flex-col items-center justify-center p-3 text-center"
+                >
+                  <p className="text-sm font-bold">{log.nickname}</p>
+                  <p className="text-xs text-gray-600 line-clamp-3">
+                    {log.content?.text}
+                  </p>
+                  <span
+                    className={`mt-2 text-xs px-2 py-1 rounded ${
+                      log.status === "SUCCESS"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-red-100 text-red-600"
+                    }`}
+                  >
+                    {log.status}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-400">
+                아직 인증 내용이 없습니다.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
       {/* 하단 버튼 */}
-      <div className="absolute bottom-5 left-6 right-6">
-        <button
-          onClick={handleJoinChallenge}
-          className="w-full bg-[#FF6A00] text-white py-4 rounded-xl font-bold text-base"
-        >
-          Join Challenge
-        </button>
-      </div>
+      {!showAuthPage && (
+        <div className="absolute bottom-5 left-6 right-6">
+          <button
+            onClick={handleJoinChallenge}
+            className="w-full bg-[#FF6A00] text-white py-4 rounded-xl font-bold text-base"
+          >
+            Join Challenge
+          </button>
+        </div>
+      )}
       <ConfirmModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
