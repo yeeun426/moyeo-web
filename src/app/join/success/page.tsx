@@ -2,6 +2,7 @@
 
 import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import LoadingSpinner from "components/common/LoadingSpinner";
 
 function PaymentSuccessContent() {
   const router = useRouter();
@@ -95,13 +96,7 @@ function PaymentSuccessContent() {
 
 export default function PaymentSuccessPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center h-screen">
-          로딩 중...
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingSpinner contents="로딩 중" />}>
       <PaymentSuccessContent />
     </Suspense>
   );

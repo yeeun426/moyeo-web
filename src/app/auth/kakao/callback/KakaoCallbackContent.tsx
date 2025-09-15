@@ -109,7 +109,6 @@ const KakaoCallbackContent = () => {
     router.push("/login");
   }, [router]);
 
-  // 로딩 상태
   if (loading) {
     return <LoadingSpinner contents="로그인 처리중입니다" />;
   }

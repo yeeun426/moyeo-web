@@ -6,6 +6,8 @@ import Header from "../../components/Header";
 import { Search, Calendar } from "lucide-react";
 import challengeApiService from "service/challengeService";
 import { useRouter } from "next/navigation";
+import Loadable from "next/dist/shared/lib/loadable.shared-runtime";
+import LoadingSpinner from "components/common/LoadingSpinner";
 
 interface ChallengeItem {
   challengeId: string;
@@ -119,14 +121,10 @@ export default function Challenge() {
           />
         </div>
 
-        {/* 로딩 상태 */}
         {loading && (
-          <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-          </div>
+          <LoadingSpinner contents="챌린지 목록을 불러오는 중입니다" />
         )}
 
-        {/* 에러 상태 */}
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}

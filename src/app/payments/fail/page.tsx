@@ -2,6 +2,7 @@
 
 import { useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import LoadingSpinner from "components/common/LoadingSpinner";
 
 function PaymentFailContent() {
   const sp = useSearchParams();
@@ -81,13 +82,7 @@ function PaymentFailContent() {
 
 export default function PaymentFailPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center h-screen">
-          로딩 중...
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingSpinner contents="로딩 중" />}>
       <PaymentFailContent />
     </Suspense>
   );

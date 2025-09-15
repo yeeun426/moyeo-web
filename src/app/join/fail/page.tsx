@@ -1,5 +1,6 @@
 "use client";
 
+import LoadingSpinner from "components/common/LoadingSpinner";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 
@@ -27,13 +28,7 @@ function PaymentFailContent() {
 
 export default function PaymentFailPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center h-screen">
-          로딩 중...
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingSpinner contents="로딩 중" />}>
       <PaymentFailContent />
     </Suspense>
   );
