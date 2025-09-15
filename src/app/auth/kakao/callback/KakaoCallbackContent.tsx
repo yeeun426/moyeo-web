@@ -1,8 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ClipLoader } from "react-spinners";
+import LoadingSpinner from "components/common/LoadingSpinner";
+import { ERROR_MESSAGES, STORAGE_KEYS } from "utils/constants";
+import ErrorRouting from "components/common/ErrorRouting";
+
+interface LoginResponse {
+  data: {
+    jwtAccessToken?: string;
+    userId?: number;
+    nickname?: string;
+    character?: string;
+    newUser?: boolean;
+    oauthId?: string;
+  };
+}
 
 const KakaoCallbackContent = () => {
   const searchParams = useSearchParams();
@@ -10,18 +23,41 @@ const KakaoCallbackContent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const code = searchParams.get("code");
-    if (!code) {
-      setError("인증 코드가 없습니다.");
-      setLoading(false);
-      return;
-    }
+  // 세션 스토리지 저장 함수
+  const saveToSessionStorage = useCallback((data: LoginResponse["data"]) => {
+    const { jwtAccessToken, userId, nickname, character } = data;
 
-    const sendCodeToBackend = async () => {
+    if (jwtAccessToken) {
+      sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, jwtAccessToken);
+    }
+    if (userId != null) {
+      sessionStorage.setItem(STORAGE_KEYS.USER_ID, String(userId));
+    }
+    if (nickname) {
+      sessionStorage.setItem(STORAGE_KEYS.NICKNAME, nickname);
+    }
+    if (character) {
+      sessionStorage.setItem(STORAGE_KEYS.CHARACTER, character);
+    }
+  }, []);
+
+  // 라우팅 함수
+  const handleNavigation = useCallback(
+    (data: LoginResponse["data"]) => {
+      if (data.newUser && data.oauthId) {
+        router.push(`/info-name?provider=KAKAO&oauthId=${data.oauthId}`);
+      } else {
+        router.push("/home");
+      }
+    },
+    [router]
+  );
+
+  // API 호출 함수 분리
+  const sendCodeToBackend = useCallback(
+    async (code: string) => {
       try {
-        setLoading(true);
-        const res = await fetch(
+        const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/v1/auth/login/kakao/callback`,
           {
             method: "POST",
@@ -32,76 +68,56 @@ const KakaoCallbackContent = () => {
           }
         );
 
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        const data = await res.json();
+        const result: LoginResponse = await response.json();
+        const { data } = result;
 
-        if (!data.data?.jwtAccessToken && !data?.data.newUser) {
-          setError("로그인에 실패했습니다.");
-          setLoading(false);
-          return;
-        }
-
-        if (data?.data?.jwtAccessToken) {
-          sessionStorage.setItem("accessToken", data.data.jwtAccessToken);
-        }
-        if (data?.data?.userId != null) {
-          sessionStorage.setItem("userId", String(data.data.userId));
-        }
-        if (data?.data?.nickname) {
-          sessionStorage.setItem("nickname", data.data.nickname);
-        }
-        if (data?.data?.character) {
-          sessionStorage.setItem("character", data.data.character);
+        if (!data?.jwtAccessToken && !data?.newUser) {
+          throw new Error("Invalid response data");
         }
 
-        if (data?.data.newUser) {
-          router.push(`/info-name?provider=KAKAO&oauthId=${data.data.oauthId}`);
-        } else {
-          router.push("/home");
-        }
+        // 세션 저장 및 라우팅
+        saveToSessionStorage(data);
+        handleNavigation(data);
       } catch (err) {
-        console.error("로그인 처리 중 오류가 발생했습니다.", err);
-        setError("로그인 처리 중 오류가 발생했습니다.");
+        console.error("카카오 로그인 처리 실패:", err);
+        setError(ERROR_MESSAGES.PROCESSING_ERROR);
+      } finally {
         setLoading(false);
       }
-    };
+    },
+    [saveToSessionStorage, handleNavigation]
+  );
 
-    sendCodeToBackend();
-  }, [searchParams, router]);
+  useEffect(() => {
+    const code = searchParams.get("code");
 
+    if (!code) {
+      setError(ERROR_MESSAGES.NO_CODE);
+      setLoading(false);
+      return;
+    }
+
+    sendCodeToBackend(code);
+  }, [searchParams, sendCodeToBackend]);
+
+  // 홈으로 이동
+  const handleGoHome = useCallback(() => {
+    router.push("/login");
+  }, [router]);
+
+  // 로딩 상태
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <ClipLoader />
-        <p className="mt-4 text-gray-600">로그인 처리 중입니다...</p>
-      </div>
-    );
+    return <LoadingSpinner contents="로그인 처리중입니다" />;
   }
 
   if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <div className="bg-white p-8 rounded-lg shadow-md text-center">
-          <p className="text-red-500 mb-4 text-lg">{error}</p>
-          <button
-            onClick={() => router.push("/")}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
-          >
-            홈으로 돌아가기
-          </button>
-        </div>
-      </div>
-    );
+    return <ErrorRouting error={error} handleGoHome={handleGoHome} />;
   }
-
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <p>로그인 처리 중입니다...</p>
-    </div>
-  );
+  return null;
 };
 
 export default KakaoCallbackContent;
